@@ -7,7 +7,9 @@
 #include <thread>
 #include <vector>
 
-#include "basic-player.h"
+#include "best-card-player.h"
+#include "user-player.h"
+#include "worst-card-player.h"
 
 class Table {
 public:
@@ -20,7 +22,9 @@ public:
   void distributeCards();
   void swapCards();
   void reset();
-  std::vector<BasicPlayer> play();
+  std::vector<Player *> play();
+
+  ~Table();
 
 private:
   void setPlayers(uint64_t totalPlayers);
@@ -28,8 +32,8 @@ private:
 
   bool allPlayersDone();
 
-  std::vector<BasicPlayer> players;
-  std::vector<BasicPlayer> nextPlayers;
+  std::vector<Player *> players;
+  std::vector<Player *> nextPlayers;
   std::multiset<Card> cards;
   Cards::PlayedCardInfo cardStackTop;
   uint64_t cardLimit;

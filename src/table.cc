@@ -20,19 +20,19 @@ void Table::printCards() {
 
 void Table::printPlayerCards(uint64_t player) {
   std::cout << player << "\t";
-  players[player].printCardsInHand();
+  players[player]->printCardsInHand();
 }
 
 void Table::printAllPlayerCards() {
   for (size_t player = 0; player < players.size(); player++) {
-    std::cout << players[player].getPlayerNumber() << "\t";
-    players[player].printCardsInHand();
+    std::cout << players[player]->getPlayerNumber() << "\t";
+    players[player]->printCardsInHand();
   }
 }
 
 void Table::printPlayersRanking() {
   for (size_t player = 0; player < players.size(); player++)
-    std::cout << players[player].getPlayerNumber() << " ";
+    std::cout << players[player]->getPlayerNumber() << " ";
   std::cout << std::endl;
 }
 
@@ -46,7 +46,7 @@ void Table::distributeCards() {
   // Distribute cards to players
   size_t playerIndex = 0;
   for (Card card : shuffledCards) {
-    players[playerIndex].addCardsToHand(card);
+    players[playerIndex]->addCardsToHand(card);
     playerIndex = (playerIndex + 1) % players.size();
   }
 
@@ -58,65 +58,70 @@ void Table::swapCards() {
   if (players.size() < 4)
     throw std::runtime_error("Table must contain at least 4 players");
 
-  players[players.size() - 1].addCardsToHand(players[0].getWorstCard());
-  players.begin()->removeCardsFromHand(players[0].getWorstCard(), 1);
-  players[players.size() - 1].addCardsToHand(players[0].getWorstCard());
-  players.begin()->removeCardsFromHand(players[0].getWorstCard(), 1);
+  players[players.size() - 1]->addCardsToHand(players[0]->getWorstCard());
+  players[0]->removeCardsFromHand(players[0]->getWorstCard(), 1);
+  players[players.size() - 1]->addCardsToHand(players[0]->getWorstCard());
+  players[0]->removeCardsFromHand(players[0]->getWorstCard(), 1);
 
-  players[0].addCardsToHand(players[players.size() - 1].getBestCard());
-  players[players.size() - 1].removeCardsFromHand(
-      players[players.size() - 1].getBestCard(), 1);
-  players[0].addCardsToHand(players[players.size() - 1].getBestCard());
-  players[players.size() - 1].removeCardsFromHand(
-      players[players.size() - 1].getBestCard(), 1);
+  players[0]->addCardsToHand(players[players.size() - 1]->getBestCard());
+  players[players.size() - 1]->removeCardsFromHand(
+      players[players.size() - 1]->getBestCard(), 1);
+  players[0]->addCardsToHand(players[players.size() - 1]->getBestCard());
+  players[players.size() - 1]->removeCardsFromHand(
+      players[players.size() - 1]->getBestCard(), 1);
 
-  players[players.size() - 2].addCardsToHand(players[1].getWorstCard());
-  players[1].removeCardsFromHand(players[1].getWorstCard(), 1);
-  players[1].addCardsToHand(players[players.size() - 2].getBestCard());
-  players[players.size() - 2].removeCardsFromHand(
-      players[players.size() - 2].getBestCard(), 1);
+  players[players.size() - 2]->addCardsToHand(players[1]->getWorstCard());
+  players[1]->removeCardsFromHand(players[1]->getWorstCard(), 1);
+  players[1]->addCardsToHand(players[players.size() - 2]->getBestCard());
+  players[players.size() - 2]->removeCardsFromHand(
+      players[players.size() - 2]->getBestCard(), 1);
 }
 
 void Table::reset() {
+  cardStackTop = {0, 0};
   for (auto player : nextPlayers)
-    player.resetPlayer();
+    player->resetPlayer();
+  players.clear();
   players = nextPlayers;
   nextPlayers.clear();
   setCardLimit(12);
   distributeCards();
 }
 
-std::vector<BasicPlayer> Table::play() {
+std::vector<Player *> Table::play() {
   uint64_t currentPlayer = 0;
   uint64_t passes = 0;
   while (!allPlayersDone()) {
     if (currentPlayer >= uint64_t(players.size()))
       currentPlayer = 0;
-    // std::cout << "currentplayer " << currentPlayer << std::endl;
-    if (players[currentPlayer].play(cardStackTop)) {
+    if (players[currentPlayer]->play(cardStackTop)) {
       passes = 0;
-      // std::cout << "Player: " << players[currentPlayer].getPlayerNumber()
-      //           << " played " << cardStackTop.amount << " "
-      //           << int(cardStackTop.card) << std::endl;
+      std::cout << "Player: " << players[currentPlayer]->getPlayerNumber()
+                << " played " << cardStackTop.amount << " "
+                << int(cardStackTop.card) << std::endl;
     } else {
-      // std::cout << "Player: " << players[currentPlayer].getPlayerNumber()
-      //           << " passed" << std::endl;
       passes++;
     }
-    // std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
     if (passes == uint64_t(players.size() - 1))
       cardStackTop = {0, 0};
 
     currentPlayer++;
   }
+  printPlayersRanking();
   reset();
   swapCards();
   return players;
 }
 
 void Table::setPlayers(uint64_t totalPlayers) {
-  for (uint64_t player = 0; player < totalPlayers; player++)
-    players.push_back(BasicPlayer(cardLimit, player));
+  players.push_back(new UserPlayer(cardLimit, 0));
+
+  for (uint64_t player = 1; player < totalPlayers / 2; player++)
+    players.push_back(new BestCardPlayer(cardLimit, player));
+
+  for (uint64_t player = totalPlayers / 2; player < totalPlayers; player++)
+    players.push_back(new WorstCardPlayer(cardLimit, player));
 }
 
 void Table::setCardLimit(uint64_t cardLimit) {
@@ -127,7 +132,7 @@ void Table::setCardLimit(uint64_t cardLimit) {
 
 bool Table::allPlayersDone() {
   for (size_t player = 0; player < players.size();) {
-    if (players[player].getAmountOfCardsInHand() == 0) {
+    if (players[player]->getAmountOfCardsInHand() == 0) {
       nextPlayers.push_back(players[player]);
       players.erase(players.begin() + player);
     } else {
@@ -141,4 +146,9 @@ bool Table::allPlayersDone() {
     return true;
   }
   return false;
+}
+
+Table::~Table() {
+  for (auto player : players)
+    delete player;
 }

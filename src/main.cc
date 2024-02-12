@@ -18,16 +18,17 @@ bool comparePlayers(const std::pair<int, std::unordered_map<int, int>> &a,
 }
 
 int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " <number_of_rounds>" << std::endl;
+  if (argc != 4) {
+    std::cerr << "Usage: " << argv[0] << " <rounds> <players> <highestcard>"
+              << std::endl;
     return 1;
   }
 
   int numberOfRounds = std::atoi(argv[1]);
-  Table t(8, 12);
+  Table t(std::atoi(argv[2]), std::atoi(argv[3]));
 
   t.distributeCards();
-  std::vector<std::vector<BasicPlayer>> playerRounds;
+  std::vector<std::vector<Player *>> playerRounds;
   try {
     for (int i = 0; i < numberOfRounds; i++) {
       playerRounds.push_back(t.play());
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]) {
   for (const auto &round : playerRounds) {
     int position = 1;
     for (const auto &player : round) {
-      int playerNumber = player.getPlayerNumber();
+      int playerNumber = player->getPlayerNumber();
       playerPositions[playerNumber][position]++;
       position++;
     }
@@ -53,7 +54,8 @@ int main(int argc, char *argv[]) {
   std::sort(sortedPlayerPositions.begin(), sortedPlayerPositions.end(),
             comparePlayers);
 
-  std::cout << static_cast<double>(numberOfRounds / 8) / numberOfRounds * 100.0
+  std::cout << static_cast<double>(numberOfRounds / std::atoi(argv[2])) /
+                   numberOfRounds * 100.0
             << "%" << std::endl;
 
   // Print the summary

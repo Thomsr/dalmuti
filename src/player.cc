@@ -29,8 +29,16 @@ void Player::removeCardsFromHand(Card card, uint64_t amount) {
 }
 
 void Player::printCardsInHand() {
-  for (int card = 1; card <= 12; card++)
+  for (uint64_t card = 1; card <= cardLimit; card++)
     std::cout << card << ":" << cardsInHand.count(card) << " ";
 
   std::cout << std::endl;
+}
+
+bool Player::canPlay(Cards::PlayedCardInfo const &cardStackTop) {
+  for (Card card = cardStackTop.card - 1; card >= cardStackTop.amount; card--) {
+    if (cardsInHand.count(card) >= cardStackTop.amount)
+      return true;
+  }
+  return false;
 }
