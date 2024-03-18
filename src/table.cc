@@ -36,6 +36,12 @@ void Table::printPlayersRanking() {
   std::cout << std::endl;
 }
 
+void Table::printPlayersHandValue() {
+  for (size_t player = 0; player < players.size(); player++) {
+    std::cout << players[player]->getHandValue() << std::endl << std::endl;
+  }
+}
+
 void Table::distributeCards() {
   // Shuffle the cards
   std::vector<Card> shuffledCards(cards.begin(), cards.end());
@@ -94,15 +100,12 @@ std::vector<Player *> Table::play() {
   while (!allPlayersDone()) {
     if (currentPlayer >= uint64_t(players.size()))
       currentPlayer = 0;
+
     if (players[currentPlayer]->play(cardStackTop)) {
       passes = 0;
-      std::cout << "Player: " << players[currentPlayer]->getPlayerNumber()
-                << " played " << cardStackTop.amount << " "
-                << int(cardStackTop.card) << std::endl;
     } else {
       passes++;
     }
-    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
     if (passes == uint64_t(players.size() - 1))
       cardStackTop = {0, 0};
 
@@ -115,9 +118,7 @@ std::vector<Player *> Table::play() {
 }
 
 void Table::setPlayers(uint64_t totalPlayers) {
-  players.push_back(new UserPlayer(cardLimit, 0));
-
-  for (uint64_t player = 1; player < totalPlayers / 2; player++)
+  for (uint64_t player = 0; player < totalPlayers / 2; player++)
     players.push_back(new BestCardPlayer(cardLimit, player));
 
   for (uint64_t player = totalPlayers / 2; player < totalPlayers; player++)
@@ -128,6 +129,10 @@ void Table::setCardLimit(uint64_t cardLimit) {
   for (uint64_t card = 1; card <= cardLimit; card++)
     for (uint64_t amount = 0; amount < card; amount++)
       cards.insert(card);
+
+  // Add jesters
+  cards.insert(cardLimit + 1);
+  cards.insert(cardLimit + 1);
 }
 
 bool Table::allPlayersDone() {

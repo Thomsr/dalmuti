@@ -21,6 +21,21 @@ bool WorstCardPlayer::play(Cards::PlayedCardInfo &cardStackTop) {
       removeCardsFromHand(card, cardStackTop.amount);
       return true;
     }
+    // Jesters
+    if (cardsInHand.count(cardLimit + 1) == 1 &&
+        cardsInHand.count(card) + 1 == cardStackTop.amount) {
+      cardStackTop = {card, cardStackTop.amount};
+      removeCardsFromHand(card, cardStackTop.amount - 1);
+      removeCardsFromHand(cardLimit + 1, 1);
+      return true;
+    }
+    if (cardsInHand.count(cardLimit + 1) == 2 &&
+        cardsInHand.count(card) + 2 == cardStackTop.amount) {
+      cardStackTop = {card, cardStackTop.amount};
+      removeCardsFromHand(card, cardStackTop.amount - 2);
+      removeCardsFromHand(cardLimit + 1, 2);
+      return true;
+    }
   }
   return false;
 }

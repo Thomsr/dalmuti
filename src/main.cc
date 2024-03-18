@@ -31,6 +31,8 @@ int main(int argc, char *argv[]) {
   std::vector<std::vector<Player *>> playerRounds;
   try {
     for (int i = 0; i < numberOfRounds; i++) {
+      t.printAllPlayerCards();
+      t.printPlayersHandValue();
       playerRounds.push_back(t.play());
     }
   } catch (std::runtime_error &e) {

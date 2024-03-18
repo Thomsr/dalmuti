@@ -19,6 +19,7 @@ public:
   void printPlayerCards(uint64_t player);
   void printAllPlayerCards();
   void printPlayersRanking();
+  void printPlayersHandValue();
   void distributeCards();
   void swapCards();
   void reset();

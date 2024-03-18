@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <random>
 #include <set>
@@ -25,9 +26,17 @@ public:
   Card getBestCard() { return *(cardsInHand.begin()); }
   Card getWorstCard() { return *(cardsInHand.rbegin()); }
 
-  ~Player() {}
+  double cardValue(Card card, uint64_t amount);
+  double getHandValue();
+  void printCardValues();
+
+  virtual ~Player(){};
 
 protected:
+  inline bool isValidCard(Card card) {
+    return card >= 1 && card <= cardLimit + 1;
+  }
+
   uint64_t playerNumber;
   std::multiset<Card> cardsInHand;
   uint64_t cardLimit;

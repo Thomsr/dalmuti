@@ -18,7 +18,7 @@ bool UserPlayer::play(Cards::PlayedCardInfo &cardStackTop) {
     if (card == "pass")
       return false;
     std::cin >> amount;
-  } while (cardsInHand.count(std::stoi(card) < amount));
+  } while (cardsInHand.count(uint64_t(std::stoi(card)) < amount));
 
   cardStackTop = {Card(std::stoi(card)), amount};
   removeCardsFromHand(std::stoi(card), amount);
