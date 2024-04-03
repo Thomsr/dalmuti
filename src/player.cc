@@ -1,7 +1,8 @@
 #include "player.h"
 
-Player::Player(uint64_t cardLimit, uint64_t playerNumber)
-    : playerNumber(playerNumber), cardLimit(cardLimit) {}
+Player::Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType playerType)
+    : playerNumber(playerNumber), playerType(playerType), cardLimit(cardLimit) {
+}
 
 void Player::resetPlayer() { cardsInHand.clear(); }
 
@@ -44,21 +45,33 @@ bool Player::canPlay(Cards::PlayedCardInfo const &cardStackTop) {
   return false;
 }
 
-double Player::cardValue(Card card, uint64_t amount) {
+double Player::cardValue(Card card, uint64_t amount,
+                         std::multiset<Card> const cards) {
   double cardValue = 0;
-  for (uint64_t i = amount; i < card; i++)
-    for (uint64_t j = i; j > 0; j--)
-      cardValue += j / 80.0;
+  for (uint64_t currentCard = amount; currentCard < card; currentCard++) {
+    if (card - cards.count(currentCard) < amount)
+      continue;
+
+    uint64_t cardsLeft = card - cards.count(currentCard);
+    std::cout << "cardsLeft: " << cardsLeft << " "
+              << "amount: " << amount << " "
+              << "currentCard: " << currentCard << std::endl;
+    for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--)
+      cardValue += j / double(currentCard);
+  }
+
+  std::cout << cardValue << std::endl;
   return cardValue;
 }
 
-double Player::getHandValue() {
+double Player::getHandValue(std::multiset<Card> const cards) {
   double handValue = 0.0;
   for (int i = 1; i <= 12; i++)
     if (cardsInHand.count(i) > 0)
-      handValue += cardValue(i, cardsInHand.count(i));
+      handValue += cardValue(i, cardsInHand.count(i), cards);
 
   return handValue;
+  return 0.0;
 }
 
 void Player::printCardValues() {
@@ -67,8 +80,9 @@ void Player::printCardValues() {
     std::cout << i << " " << cardsInHand.count(i) << "x"
               << ":";
     if (cardsInHand.count(i) > 0)
-      std::cout << std::setprecision(2) << cardValue(i, cardsInHand.count(i));
-    std::cout << std::endl;
+      // std::cout << std::setprecision(2) << cardValue(i,
+      // cardsInHand.count(i));
+      std::cout << std::endl;
   }
   std::cout << std::endl;
 }

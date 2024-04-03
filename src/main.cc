@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <vector>
 
+#define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
+
 // Define a custom comparator to sort positions by their numerical order
 bool comparePositions(const std::pair<int, int> &a,
                       const std::pair<int, int> &b) {
@@ -17,23 +19,22 @@ bool comparePlayers(const std::pair<int, std::unordered_map<int, int>> &a,
   return a.first < b.first;
 }
 
-int main(int argc, char *argv[]) {
-  if (argc != 4) {
-    std::cerr << "Usage: " << argv[0] << " <rounds> <players> <highestcard>"
-              << std::endl;
-    return 1;
-  }
+void printProgress(double percentage) {
+  int val = (int)(percentage * 100);
+  int lpad = (int)(percentage * 60);
+  int rpad = 60 - lpad;
+  printf("\r%3d%% [%.*s%*s]", val, lpad, PBSTR, rpad, "");
+  fflush(stdout);
+}
 
-  int numberOfRounds = std::atoi(argv[1]);
-  Table t(std::atoi(argv[2]), std::atoi(argv[3]));
-
-  t.distributeCards();
+void getStatistics(int numberOfRounds, Table &t, int nrPlayers) {
   std::vector<std::vector<Player *>> playerRounds;
+  t.printAllPlayerCards();
+  t.printPlayersHandValue();
   try {
     for (int i = 0; i < numberOfRounds; i++) {
-      t.printAllPlayerCards();
-      t.printPlayersHandValue();
       playerRounds.push_back(t.play());
+      printProgress(static_cast<double>(i) / numberOfRounds);
     }
   } catch (std::runtime_error &e) {
     std::cout << e.what() << std::endl;
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]) {
   std::sort(sortedPlayerPositions.begin(), sortedPlayerPositions.end(),
             comparePlayers);
 
-  std::cout << static_cast<double>(numberOfRounds / std::atoi(argv[2])) /
+  std::cout << static_cast<double>(numberOfRounds / nrPlayers) /
                    numberOfRounds * 100.0
             << "%" << std::endl;
 
@@ -75,6 +76,41 @@ int main(int argc, char *argv[]) {
     }
     std::cout << std::endl;
   }
+}
 
+int main(int argc, char *argv[]) {
+  int cardLimit = 12;
+  if (argc < 3) {
+    std::cerr << "Usage: " << argv[0] << " <rounds> <players> [highestcard]"
+              << std::endl;
+    return 1;
+  }
+  if (argc == 4)
+    cardLimit = std::atoi(argv[3]);
+
+  int numberOfRounds = std::atoi(argv[1]);
+  Table table(cardLimit);
+
+  for (int i = 1; i <= std::atoi(argv[2]); i++) {
+    int playerType;
+    std::cin >> playerType;
+    switch (playerType) {
+    case 0:
+      table.addPlayer(new WorstCardPlayer(cardLimit, i));
+      break;
+    case 1:
+      table.addPlayer(new BestCardPlayer(cardLimit, i));
+      break;
+    case 2:
+      table.addPlayer(new StatPlayer(cardLimit, i));
+      break;
+    }
+  }
+
+  std::cout << "Starting game with " << std::atoi(argv[2]) << " players."
+            << std::endl;
+
+  table.distributeCards();
+  getStatistics(numberOfRounds, table, std::atoi(argv[2]));
   return 0;
 }

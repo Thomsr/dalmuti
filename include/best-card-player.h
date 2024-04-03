@@ -6,7 +6,8 @@
 class BestCardPlayer : public Player {
 public:
   BestCardPlayer(uint64_t cardLimit, uint64_t playerNumber);
-  bool play(Cards::PlayedCardInfo &cardStackTop) override;
+  bool play(Cards::PlayedCardInfo &cardStackTop,
+            std::multiset<Card> const cards) override;
 };
 
 #endif

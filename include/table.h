@@ -8,13 +8,15 @@
 #include <vector>
 
 #include "best-card-player.h"
+#include "stat-player.h"
 #include "user-player.h"
 #include "worst-card-player.h"
 
 class Table {
 public:
   Table();
-  Table(uint64_t totalPlayers, uint64_t cardLimit);
+  Table(uint64_t cardLimit);
+  void addPlayer(Player *player);
   void printCards();
   void printPlayerCards(uint64_t player);
   void printAllPlayerCards();
@@ -28,7 +30,6 @@ public:
   ~Table();
 
 private:
-  void setPlayers(uint64_t totalPlayers);
   void setCardLimit(uint64_t cardLimit);
 
   bool allPlayersDone();
