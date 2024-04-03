@@ -30,7 +30,7 @@ public:
   Card getBestCard() { return *(cardsInHand.begin()); }
   Card getWorstCard() { return *(cardsInHand.rbegin()); }
 
-  double cardValue(Card card, uint64_t amount, std::multiset<Card> const cards);
+  double cardValue(Card card, uint64_t amount, std::multiset<Card> const cards, std::multiset<Card> playersHand, uint64_t nrPlayers, std::vector<size_t> playersHandSize);
   double getHandValue(std::multiset<Card> const cards);
   void printCardValues();
 

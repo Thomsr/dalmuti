@@ -98,19 +98,19 @@ std::vector<Player *> Table::play() {
 
   while (!allPlayersDone()) {
     if (players[currentPlayer]->play(cardStackTop, cards)) {
-      passes = 0;
-      std::cout << currentPlayer << " played: " << int(cardStackTop.card) << " "
-                << int(cardStackTop.amount) << "x " << cardStackTop.jesters
-                << std::endl;
+      // passes = 0;
+      // std::cout << currentPlayer << " played: " << int(cardStackTop.card) << " "
+      //           << int(cardStackTop.amount) << "x " << cardStackTop.jesters
+      //           << std::endl;
       for (uint64_t i = 0; i < cardStackTop.amount; i++)
         cards.insert(cardStackTop.card);
     } else {
-      std::cout << currentPlayer << " passed" << std::endl;
+      // std::cout << currentPlayer << " passed" << std::endl;
       passes++;
     }
 
-    std::chrono::milliseconds timespan(1000);
-    std::this_thread::sleep_for(timespan);
+    // std::chrono::milliseconds timespan(1000);
+    // std::this_thread::sleep_for(timespan);
 
     // players[3]->printCardsInHand();
 
