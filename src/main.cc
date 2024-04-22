@@ -29,8 +29,8 @@ void printProgress(double percentage) {
 
 void getStatistics(int numberOfRounds, Table &t, int nrPlayers) {
   std::vector<std::vector<Player *>> playerRounds;
-  t.printAllPlayerCards();
-  t.printPlayersHandValue();
+  // t.printAllPlayerCards();
+  // t.printPlayersHandValue();
   try {
     for (int i = 0; i < numberOfRounds; i++) {
       playerRounds.push_back(t.play());

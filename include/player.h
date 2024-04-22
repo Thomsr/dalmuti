@@ -12,12 +12,18 @@
 
 enum PlayerType { WORSTCARD, BESTCARD, STAT, USER };
 
+struct playersInfo {
+  std::multiset<Card> playersHand;
+  uint64_t nrPlayers;
+  std::vector<size_t> playersHandSize;
+};
+
 class Player {
 public:
   Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType PlayerType);
 
   virtual bool play(Cards::PlayedCardInfo &cardStackTop,
-                    std::multiset<Card> const cards) = 0;
+                    std::multiset<Card> const cards, playersInfo players) = 0;
 
   void resetPlayer();
   void addCardsToHand(Card card);
@@ -29,9 +35,11 @@ public:
   PlayerType getPlayerType() const { return playerType; }
   Card getBestCard() { return *(cardsInHand.begin()); }
   Card getWorstCard() { return *(cardsInHand.rbegin()); }
+  std::multiset<Card> getCardsInHand() { return cardsInHand; }
 
-  double cardValue(Card card, uint64_t amount, std::multiset<Card> const cards, std::multiset<Card> playersHand, uint64_t nrPlayers, std::vector<size_t> playersHandSize);
-  double getHandValue(std::multiset<Card> const cards);
+  double cardValue(Card card, uint64_t amount, std::multiset<Card> const cards,
+                   playersInfo players);
+  double getHandValue(std::multiset<Card> const cards, playersInfo players);
   void printCardValues();
 
   virtual ~Player(){};

@@ -1,5 +1,9 @@
 #include "player.h"
 
+#include <cfenv>
+
+const double TOL = 1E-9;
+
 Player::Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType playerType)
     : playerNumber(playerNumber), playerType(playerType), cardLimit(cardLimit) {
 }
@@ -45,47 +49,32 @@ bool Player::canPlay(Cards::PlayedCardInfo const &cardStackTop) {
   return false;
 }
 
-double combination(int n, int r){
-  int nFac = n, rFac = r, nrFac = n - r;
-  for(int i = n-1; i > 0; i--)
-    nFac *= i;
-  
-  for(int i = r-1; i > 0; i--)
-    rFac *= i;
-  
-  for(int i = n-r-1; i > 0; i--)
-    nrFac *= i;
-
-  return double(nFac / double(rFac * nrFac));
-}
-
 double Player::cardValue(Card card, uint64_t amount,
-                         std::multiset<Card> const cards, std::multiset<Card> playersHand, uint64_t nrPlayers, std::vector<size_t> playersHandSize) {
-                          // Eigen hand toevoegen
+                         std::multiset<Card> const cards, playersInfo players) {
   double cardValue = 0;
   for (uint64_t currentCard = amount; currentCard < card; currentCard++) {
-    for(uint64_t player = 0; player < nrPlayers - 1; player++){
-      uint64_t cardsLeft = card - cards.count(currentCard) - playersHand.count(currentCard);
+    for (uint64_t player = 0; player < players.nrPlayers - 1; player++) {
+      uint64_t cardsLeft = card - cards.count(currentCard) -
+                           players.playersHand.count(currentCard);
       if (cardsLeft < amount)
         continue;
 
-      // std::cout << "cardsLeft: " << cardsLeft << " "
-      //           << "amount: " << amount << " "
-      //           << "currentCard: " << currentCard << std::endl;
-      for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--)
-        cardValue += (combination(cardsLeft, amount) * combination(80-cards.size()-cardsLeft - playersHand.size() + playersHand.count(currentCard), playersHandSize[player] - amount)) / combination(80-cards.size()-playersHand.size(), playersHandSize[player]);
+      for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--) {
+        
+      }
     }
   }
 
-  // std::cout << cardValue << std::endl;
+  std::cout << cardValue << std::endl;
   return cardValue;
 }
 
-double Player::getHandValue(std::multiset<Card> const cards) {
+double Player::getHandValue(std::multiset<Card> const cards,
+                            playersInfo players) {
   double handValue = 0.0;
   for (int i = 1; i <= 12; i++)
     if (cardsInHand.count(i) > 0)
-      handValue += cardValue(i, cardsInHand.count(i), cards);
+      handValue += cardValue(i, cardsInHand.count(i), cards, players);
 
   return handValue;
   return 0.0;

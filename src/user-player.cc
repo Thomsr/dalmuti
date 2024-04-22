@@ -4,7 +4,8 @@ UserPlayer::UserPlayer(uint64_t cardLimit, uint64_t playerNumber)
     : Player(cardLimit, playerNumber, PlayerType::USER) {}
 
 bool UserPlayer::play(Cards::PlayedCardInfo &cardStackTop,
-                      std::multiset<Card> const cards) {
+                      std::multiset<Card> const cards,
+                      playersInfo playersInfo) {
   if (!canPlay(cardStackTop))
     return false;
 

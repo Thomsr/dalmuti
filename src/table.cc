@@ -35,8 +35,18 @@ void Table::printPlayersRanking() {
 }
 
 void Table::printPlayersHandValue() {
-  for (size_t player = 0; player < players.size(); player++) {
-    std::cout << players[player]->getHandValue(cards) << std::endl << std::endl;
+  for (size_t currentPlayer = 0; currentPlayer < players.size();
+       currentPlayer++) {
+    std::vector<size_t> playersHandSize;
+    for (size_t player = 0; player < players.size(); player++) {
+      if (player != currentPlayer)
+        playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
+    }
+    playersInfo playersInfo = {players[currentPlayer]->getCardsInHand(),
+                               static_cast<uint64_t>(players.size()),
+                               playersHandSize};
+    std::cout << players[currentPlayer]->getHandValue(cards, playersInfo)
+              << std::endl;
   }
 }
 
@@ -97,9 +107,18 @@ std::vector<Player *> Table::play() {
   uint64_t passes = 0;
 
   while (!allPlayersDone()) {
-    if (players[currentPlayer]->play(cardStackTop, cards)) {
-      // passes = 0;
-      // std::cout << currentPlayer << " played: " << int(cardStackTop.card) << " "
+    std::vector<size_t> playersHandSize;
+    for (size_t player = 0; player < players.size(); player++) {
+      if (player != currentPlayer)
+        playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
+    }
+    playersInfo playersInfo = {players[currentPlayer]->getCardsInHand(),
+                               static_cast<uint64_t>(players.size()),
+                               playersHandSize};
+    if (players[currentPlayer]->play(cardStackTop, cards, playersInfo)) {
+      passes = 0;
+      // std::cout << currentPlayer << " played: " << int(cardStackTop.card) <<
+      // " "
       //           << int(cardStackTop.amount) << "x " << cardStackTop.jesters
       //           << std::endl;
       for (uint64_t i = 0; i < cardStackTop.amount; i++)
