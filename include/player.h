@@ -49,6 +49,10 @@ protected:
     return card >= 1 && card <= cardLimit + 1;
   }
 
+  unsigned long long combination(int n, int k);
+  double hypergeometricProbability(int n, int x, int N, int M);
+
+  unsigned long long combinations[1000][1000] = {0};
   uint64_t playerNumber;
   PlayerType playerType;
   std::multiset<Card> cardsInHand;

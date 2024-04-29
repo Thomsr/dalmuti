@@ -12,7 +12,7 @@ bool StatPlayer::play(Cards::PlayedCardInfo &cardStackTop,
       cardLimit + 1,
       cardsInHand.count(cardLimit + 1)); // Remove jesters from hand (if any)
 
-  std::pair<Card, double> bestCard = {0, 20.0};
+  std::pair<Card, double> bestCard = {0, 5.0};
 
   if (cardStackTop.card == 0) {
     bestCard.second = 0;
