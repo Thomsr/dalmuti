@@ -3,42 +3,51 @@
 Table::Table() : cardStackTop({0, 0, 0}), cardLimit(12) { setCardLimit(12); }
 
 Table::Table(uint64_t cardLimit)
-    : cardStackTop({0, 0, 0}), cardLimit(cardLimit) {
+    : cardStackTop({0, 0, 0}), cardLimit(cardLimit)
+{
   setCardLimit(cardLimit);
 }
 
 void Table::addPlayer(Player *player) { players.push_back(player); }
 
-void Table::printCards() {
+void Table::printCards()
+{
   for (uint64_t card = 1; card <= cardLimit; card++)
     std::cout << card << ":" << cards.count(card) << " ";
 
   std::cout << std::endl;
 }
 
-void Table::printPlayerCards(uint64_t player) {
+void Table::printPlayerCards(uint64_t player)
+{
   std::cout << player << "\t";
   players[player]->printCardsInHand();
 }
 
-void Table::printAllPlayerCards() {
-  for (size_t player = 0; player < players.size(); player++) {
+void Table::printAllPlayerCards()
+{
+  for (size_t player = 0; player < players.size(); player++)
+  {
     std::cout << players[player]->getPlayerNumber() << "\t";
     players[player]->printCardsInHand();
   }
 }
 
-void Table::printPlayersRanking() {
+void Table::printPlayersRanking()
+{
   for (size_t player = 0; player < players.size(); player++)
     std::cout << players[player]->getPlayerNumber() << " ";
   std::cout << std::endl;
 }
 
-void Table::printPlayersHandValue() {
+void Table::printPlayersHandValue()
+{
   for (size_t currentPlayer = 0; currentPlayer < players.size();
-       currentPlayer++) {
+       currentPlayer++)
+  {
     std::vector<size_t> playersHandSize;
-    for (size_t player = 0; player < players.size(); player++) {
+    for (size_t player = 0; player < players.size(); player++)
+    {
       if (player != currentPlayer)
         playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
     }
@@ -50,7 +59,8 @@ void Table::printPlayersHandValue() {
   }
 }
 
-void Table::distributeCards() {
+void Table::distributeCards()
+{
   // Shuffle the cards
   std::vector<Card> shuffledCards(cards.begin(), cards.end());
   std::random_device rd;
@@ -59,7 +69,8 @@ void Table::distributeCards() {
 
   // Distribute cards to players
   size_t playerIndex = 0;
-  for (Card card : shuffledCards) {
+  for (Card card : shuffledCards)
+  {
     players[playerIndex]->addCardsToHand(card);
     playerIndex = (playerIndex + 1) % players.size();
   }
@@ -68,7 +79,8 @@ void Table::distributeCards() {
   cards.clear();
 }
 
-void Table::swapCards() {
+void Table::swapCards()
+{
   if (players.size() < 4)
     throw std::runtime_error("Table must contain at least 4 players");
 
@@ -91,7 +103,8 @@ void Table::swapCards() {
       players[players.size() - 2]->getBestCard(), 1);
 }
 
-void Table::reset() {
+void Table::reset()
+{
   cardStackTop = {0, 0, 0};
   for (auto player : nextPlayers)
     player->resetPlayer();
@@ -102,20 +115,26 @@ void Table::reset() {
   distributeCards();
 }
 
-std::vector<Player *> Table::play() {
+std::vector<Player *> Table::play()
+{
   uint64_t currentPlayer = 0;
   uint64_t passes = 0;
 
-  while (!allPlayersDone()) {
+  while (!allPlayersDone())
+  {
     std::vector<size_t> playersHandSize;
-    for (size_t player = 0; player < players.size(); player++) {
+    for (size_t player = 0; player < players.size(); player++)
+    {
       if (player != currentPlayer)
         playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
     }
-    playersInfo playersInfo = {players[currentPlayer]->getCardsInHand(),
-                               static_cast<uint64_t>(players.size()),
-                               playersHandSize};
-    if (players[currentPlayer]->play(cardStackTop, cards, playersInfo)) {
+    playersInfo playersInfo = {
+        players[currentPlayer]->getCardsInHand(),
+        static_cast<uint64_t>(players.size()),
+        playersHandSize};
+
+    if (players[currentPlayer]->play(cardStackTop, cards, playersInfo))
+    {
       passes = 0;
       // std::cout << currentPlayer << " played: " << int(cardStackTop.card) <<
       // " "
@@ -123,7 +142,9 @@ std::vector<Player *> Table::play() {
       //           << std::endl;
       for (uint64_t i = 0; i < cardStackTop.amount; i++)
         cards.insert(cardStackTop.card);
-    } else {
+    }
+    else
+    {
       // std::cout << currentPlayer << " passed" << std::endl;
       passes++;
     }
@@ -145,7 +166,8 @@ std::vector<Player *> Table::play() {
   return players;
 }
 
-void Table::setCardLimit(uint64_t cardLimit) {
+void Table::setCardLimit(uint64_t cardLimit)
+{
   cards.clear();
   for (uint64_t card = 1; card <= cardLimit; card++)
     for (uint64_t amount = 0; amount < card; amount++)
@@ -156,19 +178,25 @@ void Table::setCardLimit(uint64_t cardLimit) {
   cards.insert(cardLimit + 1);
 }
 
-bool Table::allPlayersDone() {
-  for (size_t player = 0; player < players.size();) {
-    if (players[player]->getAmountOfCardsInHand() == 0) {
+bool Table::allPlayersDone()
+{
+  for (size_t player = 0; player < players.size();)
+  {
+    if (players[player]->getAmountOfCardsInHand() == 0)
+    {
       nextPlayers.push_back(players[player]);
       // std::cout << players[player]->getPlayerNumber() << " is done"
       //           << std::endl;
       players.erase(players.begin() + player);
-    } else {
+    }
+    else
+    {
       player++; // Only increment if the player is not removed
     }
   }
 
-  if (players.size() == 1) {
+  if (players.size() == 1)
+  {
     nextPlayers.push_back(players[0]);
     players.erase(players.begin());
     return true;
@@ -176,7 +204,8 @@ bool Table::allPlayersDone() {
   return false;
 }
 
-Table::~Table() {
+Table::~Table()
+{
   for (auto player : players)
     delete player;
 }
