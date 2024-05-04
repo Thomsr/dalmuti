@@ -8,14 +8,17 @@
 #define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
 
 // Define a custom comparator to sort positions by their numerical order
-bool comparePositions(const std::pair<int, int> &a,
-                      const std::pair<int, int> &b) {
+bool comparePositions(
+  const std::pair<int, int> &a, const std::pair<int, int> &b
+) {
   return a.first < b.first;
 }
 
 // Define a custom comparator to sort player positions by player number
-bool comparePlayers(const std::pair<int, std::unordered_map<int, int>> &a,
-                    const std::pair<int, std::unordered_map<int, int>> &b) {
+bool comparePlayers(
+  const std::pair<int, std::unordered_map<int, int>> &a,
+  const std::pair<int, std::unordered_map<int, int>> &b
+) {
   return a.first < b.first;
 }
 
@@ -42,9 +45,9 @@ void getStatistics(int numberOfRounds, Table &t, int nrPlayers) {
 
   // Count player positions in each round
   std::unordered_map<int, std::unordered_map<int, int>> playerPositions;
-  for (const auto &round : playerRounds) {
+  for (const auto &round: playerRounds) {
     int position = 1;
-    for (const auto &player : round) {
+    for (const auto &player: round) {
       int playerNumber = player->getPlayerNumber();
       playerPositions[playerNumber][position]++;
       position++;
@@ -53,25 +56,27 @@ void getStatistics(int numberOfRounds, Table &t, int nrPlayers) {
 
   // Sort player positions by player number
   std::vector<std::pair<int, std::unordered_map<int, int>>>
-      sortedPlayerPositions(playerPositions.begin(), playerPositions.end());
-  std::sort(sortedPlayerPositions.begin(), sortedPlayerPositions.end(),
-            comparePlayers);
+    sortedPlayerPositions(playerPositions.begin(), playerPositions.end());
+  std::sort(
+    sortedPlayerPositions.begin(), sortedPlayerPositions.end(), comparePlayers
+  );
 
   std::cout << static_cast<double>(numberOfRounds / nrPlayers) /
-                   numberOfRounds * 100.0
+                 numberOfRounds * 100.0
             << "%" << std::endl;
 
   // Print the summary
-  for (const auto &entry : sortedPlayerPositions) {
+  for (const auto &entry: sortedPlayerPositions) {
     std::cout << "Player " << entry.first << ":" << std::endl;
-    std::vector<std::pair<int, int>> sortedPositions(entry.second.begin(),
-                                                     entry.second.end());
+    std::vector<std::pair<int, int>> sortedPositions(
+      entry.second.begin(), entry.second.end()
+    );
     std::sort(sortedPositions.begin(), sortedPositions.end(), comparePositions);
-    for (const auto &positionEntry : sortedPositions) {
+    for (const auto &positionEntry: sortedPositions) {
       std::cout << "Position " << positionEntry.first << ": "
                 << positionEntry.second << " times ("
                 << static_cast<double>(positionEntry.second) / numberOfRounds *
-                       100.0
+                     100.0
                 << "%)" << std::endl;
     }
     std::cout << std::endl;
@@ -95,15 +100,15 @@ int main(int argc, char *argv[]) {
     int playerType;
     std::cin >> playerType;
     switch (playerType) {
-    case 0:
-      table.addPlayer(new WorstCardPlayer(cardLimit, i));
-      break;
-    case 1:
-      table.addPlayer(new BestCardPlayer(cardLimit, i));
-      break;
-    case 2:
-      table.addPlayer(new StatPlayer(cardLimit, i));
-      break;
+      case 0:
+        table.addPlayer(new WorstCardPlayer(cardLimit, i));
+        break;
+      case 1:
+        table.addPlayer(new BestCardPlayer(cardLimit, i));
+        break;
+      case 2:
+        table.addPlayer(new StatPlayer(cardLimit, i));
+        break;
     }
   }
 

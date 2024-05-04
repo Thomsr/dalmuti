@@ -1,11 +1,13 @@
 #include "worst-card-player.h"
 
 WorstCardPlayer::WorstCardPlayer(uint64_t cardLimit, uint64_t playerNumber)
-    : Player(cardLimit, playerNumber, PlayerType::WORSTCARD) {}
+  : Player(cardLimit, playerNumber, PlayerType::WORSTCARD) {}
 
-bool WorstCardPlayer::play(Cards::PlayedCardInfo &cardStackTop,
-                           std::multiset<Card> const cards,
-                           playersInfo playersInfo) {
+bool WorstCardPlayer::play(
+  Cards::PlayedCardInfo &cardStackTop,
+  std::multiset<Card> const cards,
+  playersInfo playersInfo
+) {
   if (cardsInHand.size() == 0)
     return false;
 

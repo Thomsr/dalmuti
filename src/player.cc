@@ -3,10 +3,11 @@
 const double TOL = 1E-12;
 
 Player::Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType playerType)
-    : playerNumber(playerNumber), playerType(playerType), cardLimit(cardLimit) {
-}
+  : playerNumber(playerNumber), playerType(playerType), cardLimit(cardLimit) {}
 
-void Player::resetPlayer() { cardsInHand.clear(); }
+void Player::resetPlayer() {
+  cardsInHand.clear();
+}
 
 void Player::addCardsToHand(Card card) {
   if (!isValidCard(card))
@@ -20,7 +21,8 @@ void Player::removeCardsFromHand(Card card, uint64_t amount) {
 
   if (cardsInHand.count(card) < amount)
     throw std::runtime_error(
-        "Provided remove amount exceeds the amount of removable cards");
+      "Provided remove amount exceeds the amount of removable cards"
+    );
 
   if (cardsInHand.count(card) == amount) {
     cardsInHand.erase(card);
@@ -67,8 +69,12 @@ double Player::hypergeometricProbability(int n, int x, int N, int M) {
   return numerator / denominator;
 }
 
-double Player::cardValue(Card card, uint64_t amount,
-                         std::multiset<Card> const cards, playersInfo players) {
+double Player::cardValue(
+  Card card,
+  uint64_t amount,
+  std::multiset<Card> const cards,
+  playersInfo players
+) {
   double cardValue = 0;
   uint64_t totalCardsLeft = 80 - cards.size() - players.playersHand.size();
   int iteration = 0;
@@ -88,11 +94,13 @@ double Player::cardValue(Card card, uint64_t amount,
         // x = amount
         // N = totalCardsLeft
         // M = cardsLeft
-        // std::cout << players.playersHandSize[player] << ", " << amount << ",
-        // " << totalCardsLeft << ", " << cardsLeft
+        // std::cout << players.playersHandSize[player] << ", " <<
+        // amount << ", " << totalCardsLeft << ", " << cardsLeft
         cardValue += hypergeometricProbability(
-            players.playersHandSize[player], amount, totalCardsLeft, cardsLeft);
-        // std::cout << "StatPlayer: iteration: " << iteration << " done."
+          players.playersHandSize[player], amount, totalCardsLeft, cardsLeft
+        );
+        // std::cout << "StatPlayer: iteration: " << iteration << "
+        // done."
         //           << std::endl;
         iteration++;
       }
@@ -103,8 +111,8 @@ double Player::cardValue(Card card, uint64_t amount,
   return cardValue;
 }
 
-double Player::getHandValue(std::multiset<Card> const cards,
-                            playersInfo players) {
+double
+Player::getHandValue(std::multiset<Card> const cards, playersInfo players) {
   double handValue = 0.0;
   for (int i = 1; i <= 12; i++)
     if (cardsInHand.count(i) > 0)

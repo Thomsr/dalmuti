@@ -1,11 +1,13 @@
 #include "best-card-player.h"
 
 BestCardPlayer::BestCardPlayer(uint64_t cardLimit, uint64_t playerNumber)
-    : Player(cardLimit, playerNumber, PlayerType::BESTCARD) {}
+  : Player(cardLimit, playerNumber, PlayerType::BESTCARD) {}
 
-bool BestCardPlayer::play(Cards::PlayedCardInfo &cardStackTop,
-                          std::multiset<Card> const cards,
-                          playersInfo playersInfo) {
+bool BestCardPlayer::play(
+  Cards::PlayedCardInfo &cardStackTop,
+  std::multiset<Card> const cards,
+  playersInfo playersInfo
+) {
   if (cardsInHand.size() == 0)
     return false;
 

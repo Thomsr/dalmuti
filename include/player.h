@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "cards.h"
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -8,9 +9,13 @@
 #include <set>
 #include <stdexcept>
 
-#include "cards.h"
-
-enum PlayerType { WORSTCARD, BESTCARD, STAT, USER };
+enum PlayerType {
+  WORSTCARD,
+  BESTCARD,
+  STAT,
+  USER,
+  WORSTSTAT
+};
 
 struct playersInfo {
   std::multiset<Card> playersHand;
@@ -22,8 +27,11 @@ class Player {
 public:
   Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType PlayerType);
 
-  virtual bool play(Cards::PlayedCardInfo &cardStackTop,
-                    std::multiset<Card> const cards, playersInfo players) = 0;
+  virtual bool play(
+    Cards::PlayedCardInfo &cardStackTop,
+    std::multiset<Card> const cards,
+    playersInfo players
+  ) = 0;
 
   void resetPlayer();
   void addCardsToHand(Card card);
@@ -36,9 +44,12 @@ public:
   Card getBestCard() { return *(cardsInHand.begin()); }
   Card getWorstCard() { return *(cardsInHand.rbegin()); }
   std::multiset<Card> getCardsInHand() { return cardsInHand; }
-
-  double cardValue(Card card, uint64_t amount, std::multiset<Card> const cards,
-                   playersInfo players);
+  double cardValue(
+    Card card,
+    uint64_t amount,
+    std::multiset<Card> const cards,
+    playersInfo players
+  );
   double getHandValue(std::multiset<Card> const cards, playersInfo players);
   void printCardValues();
 
@@ -56,7 +67,7 @@ protected:
   uint64_t playerNumber;
   PlayerType playerType;
   std::multiset<Card> cardsInHand;
-  uint64_t cardLimit;
+  const uint64_t cardLimit;
 };
 
 #endif

@@ -1,0 +1,45 @@
+Language: Cpp
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: Left
+AllowArgumentsOnNextLine: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortcaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+BinPackArguments: false
+BinPackParameters: false
+BitFieldColonSpacing: After
+BraceWrapping: 
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+ContinuationIndentWidth: 2
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializersStyle: AfterColon
+BreakFunctionDefinitionParamaters: true
+BreakInheritanceListStyle: AfterColon
+ColumnLimit: 80
+ConstructorInitializerIndentWidth: 2
+EmptyLineAfterAccessModifierStyle: LogicalBlock
+IncludeBlocksStyle: Regroup
+IndentCaseLabels: true
+IndentWidth: 2
+InsertNewlineAtEOF: true
+ReflowComments: true
+SortIncludesOptions: CaseInsensitive
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCtorInitializerColon: false
+SpaceBeforeRangeBasedForLoopColon: false
+  

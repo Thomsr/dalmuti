@@ -6,8 +6,11 @@
 class StatPlayer : public Player {
 public:
   StatPlayer(uint64_t cardLimit, uint64_t playerNumber);
-  bool play(Cards::PlayedCardInfo &cardStackTop,
-            std::multiset<Card> const cards, playersInfo players) override;
+  bool play(
+    Cards::PlayedCardInfo &cardStackTop,
+    std::multiset<Card> const cards,
+    playersInfo players
+  ) override;
 };
 
 #endif
