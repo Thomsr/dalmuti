@@ -22,9 +22,10 @@ bool StatPlayer::play(
     bestCard.second = 0;
     for (Card card = getWorstCard(); card >= 1; card--) {
       if (cardsInHand.count(card) != 0) {
-        if (cardValue(card, cardsInHand.count(card), cards, players) > bestCard.second)
+        if (getRoundCloseChance(card, cardsInHand.count(card), cards, players) > bestCard.second)
           bestCard = {
-            card, cardValue(card, cardsInHand.count(card), cards, players)
+            card,
+            getRoundCloseChance(card, cardsInHand.count(card), cards, players)
           };
       }
     }
@@ -40,9 +41,9 @@ bool StatPlayer::play(
     // std::cout << "Card: " << int(card) << std::endl;
     if (cardsInHand.count(card) != 0) {
       if (cardsInHand.count(card) >= cardStackTop.amount) {
-        if (cardValue(card, cardStackTop.amount, cards, players) < bestCard.second)
+        if (getRoundCloseChance(card, cardStackTop.amount, cards, players) < bestCard.second)
           bestCard = {
-            card, cardValue(card, cardStackTop.amount, cards, players)
+            card, getRoundCloseChance(card, cardStackTop.amount, cards, players)
           };
       }
     }

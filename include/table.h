@@ -11,11 +11,11 @@
 #include "stat-player.h"
 #include "user-player.h"
 #include "worst-card-player.h"
+#include "worst-stat-card-player.h"
 
 class Table {
 public:
-  Table();
-  Table(uint64_t cardLimit);
+  Table(uint64_t cardLimit, bool debug);
   void addPlayer(Player *player);
   void printCards();
   void printPlayerCards(uint64_t player);
@@ -39,6 +39,8 @@ private:
   std::multiset<Card> cards;
   Cards::PlayedCardInfo cardStackTop;
   uint64_t cardLimit;
+
+  bool debug;
 };
 
 #endif

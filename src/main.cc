@@ -32,13 +32,12 @@ void printProgress(double percentage) {
 
 void getStatistics(int numberOfRounds, Table &t, int nrPlayers) {
   std::vector<std::vector<Player *>> playerRounds;
-  // t.printAllPlayerCards();
-  // t.printPlayersHandValue();
   try {
     for (int i = 0; i < numberOfRounds; i++) {
       playerRounds.push_back(t.play());
       printProgress(static_cast<double>(i) / numberOfRounds);
     }
+    printProgress(1);
   } catch (std::runtime_error &e) {
     std::cout << e.what() << std::endl;
   }
@@ -61,7 +60,8 @@ void getStatistics(int numberOfRounds, Table &t, int nrPlayers) {
     sortedPlayerPositions.begin(), sortedPlayerPositions.end(), comparePlayers
   );
 
-  std::cout << static_cast<double>(numberOfRounds / nrPlayers) /
+  std::cout << std::endl
+            << static_cast<double>(numberOfRounds / nrPlayers) /
                  numberOfRounds * 100.0
             << "%" << std::endl;
 
@@ -84,17 +84,20 @@ void getStatistics(int numberOfRounds, Table &t, int nrPlayers) {
 }
 
 int main(int argc, char *argv[]) {
-  int cardLimit = 12;
-  if (argc < 3) {
-    std::cerr << "Usage: " << argv[0] << " <rounds> <players> [highestcard]"
-              << std::endl;
+  if (argc < 4) {
+    std::cerr << "Usage: " << argv[0]
+              << " <rounds> <players> <debug> [highestcard]" << std::endl;
     return 1;
   }
-  if (argc == 4)
-    cardLimit = std::atoi(argv[3]);
+
+  int cardLimit = 12;
+  bool debug = std::atoi(argv[3]) & 1;
+
+  if (argc == 5)
+    cardLimit = std::atoi(argv[4]);
 
   int numberOfRounds = std::atoi(argv[1]);
-  Table table(cardLimit);
+  Table table(cardLimit, debug);
 
   for (int i = 1; i <= std::atoi(argv[2]); i++) {
     int playerType;
@@ -108,6 +111,9 @@ int main(int argc, char *argv[]) {
         break;
       case 2:
         table.addPlayer(new StatPlayer(cardLimit, i));
+        break;
+      case 3:
+        table.addPlayer(new WorstStatCardPlayer(cardLimit, i));
         break;
     }
   }

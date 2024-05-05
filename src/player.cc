@@ -69,18 +69,54 @@ double Player::hypergeometricProbability(int n, int x, int N, int M) {
   return numerator / denominator;
 }
 
-double Player::cardValue(
+/**
+ * @returns The value of amount times card, higher is better.
+ */
+double Player::getPlayableChance(
   Card card,
   uint64_t amount,
   std::multiset<Card> const cards,
   playersInfo players
 ) {
-  double cardValue = 0;
+  double playChance = 0;
   uint64_t totalCardsLeft = 80 - cards.size() - players.playersHand.size();
-  int iteration = 0;
 
-  // std::cout << hypergeometricProbability(10, 4, 50, 5) << std::endl;
-  // return 0;
+  for (uint64_t currentCard = card + 1; currentCard < cardLimit;
+       currentCard++) {
+    for (uint64_t player = 0; player < players.playersHandSize.size();
+         player++) {
+      uint64_t cardsLeft = currentCard - cards.count(currentCard) -
+                           players.playersHand.count(currentCard);
+      if (cardsLeft < amount)
+        continue;
+
+      for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--) {
+        playChance += hypergeometricProbability(
+          players.playersHandSize[player], amount, totalCardsLeft, cardsLeft
+        );
+        // Make the chance less likely when the player is further away from the
+        // player
+        playChance /= exp(player + 1);
+      }
+    }
+  }
+  return playChance;
+}
+
+/**
+ * @returns The value of amount x card of closing the round,
+ * lower is better.
+ * @example card = 1, amount = 1 closeValue = 0.0. Since no card can be played
+ * over 1x 1.
+ */
+double Player::getRoundCloseChance(
+  Card card,
+  uint64_t amount,
+  std::multiset<Card> const cards,
+  playersInfo players
+) {
+  double roundCloseChance = 0;
+  uint64_t totalCardsLeft = 80 - cards.size() - players.playersHand.size();
 
   for (uint64_t currentCard = amount; currentCard < card; currentCard++) {
     for (uint64_t player = 0; player < players.nrPlayers - 1; player++) {
@@ -90,25 +126,13 @@ double Player::cardValue(
         continue;
 
       for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--) {
-        // n = players.playersHandSize[player]
-        // x = amount
-        // N = totalCardsLeft
-        // M = cardsLeft
-        // std::cout << players.playersHandSize[player] << ", " <<
-        // amount << ", " << totalCardsLeft << ", " << cardsLeft
-        cardValue += hypergeometricProbability(
+        roundCloseChance += hypergeometricProbability(
           players.playersHandSize[player], amount, totalCardsLeft, cardsLeft
         );
-        // std::cout << "StatPlayer: iteration: " << iteration << "
-        // done."
-        //           << std::endl;
-        iteration++;
       }
     }
   }
-
-  // std::cout << cardValue << std::endl;
-  return cardValue;
+  return roundCloseChance;
 }
 
 double
@@ -116,9 +140,9 @@ Player::getHandValue(std::multiset<Card> const cards, playersInfo players) {
   double handValue = 0.0;
   for (int i = 1; i <= 12; i++)
     if (cardsInHand.count(i) > 0)
-      handValue += cardValue(i, cardsInHand.count(i), cards, players);
+      // handValue += cardValue(i, cardsInHand.count(i), cards, players);
 
-  return handValue;
+      return handValue;
 }
 
 void Player::printCardValues() {
@@ -126,10 +150,10 @@ void Player::printCardValues() {
   for (int i = 1; i <= 12; i++) {
     std::cout << i << " " << cardsInHand.count(i) << "x"
               << ":";
-    if (cardsInHand.count(i) > 0)
-      // std::cout << std::setprecision(2) << cardValue(i,
-      // cardsInHand.count(i));
-      std::cout << std::endl;
+    // if (cardsInHand.count(i) > 0)
+    // std::cout << std::setprecision(2) << cardValue(i,
+    // cardsInHand.count(i));
+    // std::cout << std::endl;
   }
   std::cout << std::endl;
 }

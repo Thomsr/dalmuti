@@ -1,11 +1,7 @@
 #include "table.h"
 
-Table::Table(): cardStackTop({0, 0, 0}), cardLimit(12) {
-  setCardLimit(12);
-}
-
-Table::Table(uint64_t cardLimit)
-  : cardStackTop({0, 0, 0}), cardLimit(cardLimit) {
+Table::Table(uint64_t cardLimit, bool debug)
+  : cardStackTop({0, 0, 0}), cardLimit(cardLimit), debug(debug) {
   setCardLimit(cardLimit);
 }
 
@@ -117,23 +113,31 @@ std::vector<Player *> Table::play() {
 
   while (!allPlayersDone()) {
     std::vector<size_t> playersHandSize;
-    for (size_t player = 0; player < players.size(); player++) {
-      if (player != currentPlayer)
-        playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
-    }
+    // Get the amount of cards in hand for all players, starting from the player
+    // right to the player left of the currentPlayer
+    for (int player = currentPlayer - 1; player >= 0; player--)
+      playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
+    for (int player = players.size() - 1; player > currentPlayer; player--)
+      playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
+
     playersInfo playersInfo = {
       players[currentPlayer]->getCardsInHand(),
       static_cast<uint64_t>(players.size()),
       playersHandSize
     };
 
-    if (currentPlayer == 3)
+    if (debug && players[currentPlayer]->getPlayerType() == PlayerType::WORSTSTAT)
       players[3]->printCardsInHand();
+
     if (players[currentPlayer]->play(cardStackTop, cards, playersInfo)) {
+      if (debug) {
+        std::cout << players[currentPlayer]->getPlayerNumber()
+                  << " played: " << int(cardStackTop.card) << " "
+                  << int(cardStackTop.amount) << "x "
+                  << int(cardStackTop.jesters) << " jesters" << std::endl;
+      }
+
       passes = 0;
-      std::cout << currentPlayer << " played: " << int(cardStackTop.card) << " "
-                << int(cardStackTop.amount) << "x " << int(cardStackTop.jesters)
-                << " jesters" << std::endl;
       for (uint64_t i = 0; i < cardStackTop.amount; i++)
         cards.insert(cardStackTop.card);
 
@@ -144,12 +148,17 @@ std::vector<Player *> Table::play() {
         cardStackTop.jesters = 0;
       }
     } else {
-      std::cout << currentPlayer << " passed" << std::endl;
+      if (debug) {
+        std::cout << players[currentPlayer]->getPlayerNumber() << " passed"
+                  << std::endl;
+      }
       passes++;
     }
 
-    std::chrono::milliseconds timespan(1000);
-    std::this_thread::sleep_for(timespan);
+    if (debug) {
+      std::chrono::milliseconds timespan(1000);
+      std::this_thread::sleep_for(timespan);
+    }
 
     if (passes == uint64_t(players.size() - 1))
       cardStackTop = {0, 0, 0};
@@ -157,7 +166,7 @@ std::vector<Player *> Table::play() {
     currentPlayer = (currentPlayer + 1) % players.size();
   }
 
-  printPlayersRanking();
+  // printPlayersRanking();
   reset();
   swapCards();
   return players;
@@ -178,8 +187,6 @@ bool Table::allPlayersDone() {
   for (size_t player = 0; player < players.size();) {
     if (players[player]->getAmountOfCardsInHand() == 0) {
       nextPlayers.push_back(players[player]);
-      // std::cout << players[player]->getPlayerNumber() << " is done"
-      //           << std::endl;
       players.erase(players.begin() + player);
     } else {
       player++; // Only increment if the player is not removed

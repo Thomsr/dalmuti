@@ -44,7 +44,13 @@ public:
   Card getBestCard() { return *(cardsInHand.begin()); }
   Card getWorstCard() { return *(cardsInHand.rbegin()); }
   std::multiset<Card> getCardsInHand() { return cardsInHand; }
-  double cardValue(
+  double getPlayableChance(
+    Card card,
+    uint64_t amount,
+    std::multiset<Card> const cards,
+    playersInfo players
+  );
+  double getRoundCloseChance(
     Card card,
     uint64_t amount,
     std::multiset<Card> const cards,

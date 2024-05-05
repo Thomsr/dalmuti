@@ -13,6 +13,7 @@ public:
   ) override;
 
 private:
+  double startingHandValue;
 };
 
 #endif
