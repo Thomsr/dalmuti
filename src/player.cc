@@ -21,7 +21,10 @@ void Player::removeCardsFromHand(Card card, uint64_t amount) {
 
   if (cardsInHand.count(card) < amount)
     throw std::runtime_error(
-      "Provided remove amount exceeds the amount of removable cards"
+      "Provided remove amount exceeds the amount of removable cards " +
+      std::to_string(card) + " " + std::to_string(amount) + " " +
+      std::to_string(cardsInHand.count(card)) + " " +
+      std::to_string(cardsInHand.count(cardLimit + 1))
     );
 
   if (cardsInHand.count(card) == amount) {
@@ -87,16 +90,18 @@ double Player::getPlayableChance(
          player++) {
       uint64_t cardsLeft = currentCard - cards.count(currentCard) -
                            players.playersHand.count(currentCard);
+      // if (cardsLeft > 0)
+      //   cardsLeft += 2 - cards.count(cardLimit + 1);
+
       if (cardsLeft < amount)
         continue;
 
       for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--) {
-        playChance += hypergeometricProbability(
-          players.playersHandSize[player], amount, totalCardsLeft, cardsLeft
-        );
-        // Make the chance less likely when the player is further away from the
-        // player
-        playChance /= exp(player + 1);
+        playChance +=
+          (hypergeometricProbability(
+             players.playersHandSize[player], amount, totalCardsLeft, cardsLeft
+           ) /
+           (player + 1));
       }
     }
   }

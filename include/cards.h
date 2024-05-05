@@ -9,7 +9,7 @@ namespace Cards {
 struct PlayedCardInfo {
   Card card;
   uint64_t amount;
-  uint8_t jesters;
+  uint64_t jesters;
 };
 
 }; // namespace Cards

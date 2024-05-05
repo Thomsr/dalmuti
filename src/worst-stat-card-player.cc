@@ -18,8 +18,24 @@ bool isFirstInRound(Cards::PlayedCardInfo cardStackTop) {
   return cardStackTop.card == 0;
 }
 
-bool sortDesc(const std::pair<int, int> &a, const std::pair<int, int> &b) {
-  return (a.first > b.first);
+struct CardValue {
+  double playableChance;
+  double roundCloseChance;
+  Card card;
+  uint64_t jesters;
+};
+
+bool sort(const CardValue &a, const CardValue &b) {
+  if (a.playableChance != b.playableChance)
+    return a.playableChance < b.playableChance;
+
+  if (a.roundCloseChance != b.roundCloseChance)
+    return a.roundCloseChance > b.roundCloseChance;
+
+  if (a.card != b.card)
+    return a.card < b.card;
+
+  return a.jesters < b.jesters;
 }
 
 bool WorstStatCardPlayer::play(
@@ -30,65 +46,63 @@ bool WorstStatCardPlayer::play(
   if (!canPlay(cardStackTop))
     return false;
 
-  removeCardsFromHand(cardLimit + 1, cardsInHand.count(cardLimit + 1));
+  std::vector<CardValue> cardValues;
 
-  // printCardsInHand();
-  std::vector<std::pair<double, Card>> cardValues;
-
-  // Allow more cards to be selected when there are less cards in hand
-  uint64_t cardDifference = 12;
-
-  // Change the range off cards to full when we are the first player in the
-  // round
-  Card fromCard = isFirstInRound(cardStackTop) ? 1
-                  : cardStackTop.card - cardDifference > 0
-                    ? cardStackTop.card - cardDifference
-                    : cardStackTop.amount;
-  Card tillCard =
-    isFirstInRound(cardStackTop) ? cardStackTop.card - 1 : cardStackTop.card;
+  // removeCardsFromHand(cardLimit + 1, cardsInHand.count(cardLimit + 1));
 
   // Enter the card values in a vector
-  for (Card card = 1; card <= cardLimit; card++) {
+  for (Card card = 1; card <= cardLimit + 1; card++) {
     if (cardsInHand.count(card) != 0) {
-      // std::cout << "Card: " << int(card) << std::endl;
-      // std::cout << "PlayableChance: "
-      //           << getPlayableChance(
-      //                card, cardsInHand.count(card), cards, players
-      //              )
-      //           << std::endl;
-      // std::cout << "Roundclose: "
-      //           << getRoundCloseChance(
-      //                card, cardsInHand.count(card), cards, players
-      //              )
-      //           << std::endl;
-      double currentCardValue =
-        getPlayableChance(card, cardsInHand.count(card), cards, players);
-      // getRoundCloseChance(card, cardsInHand.count(card), cards, players);
+      uint64_t amountOfJesters =
+        card == cardLimit + 1 ? 0 : cardsInHand.count(cardLimit + 1);
+      for (uint64_t jesters = 0; jesters <= amountOfJesters; jesters++) {
+        // double currentCardValue =
+        // getPlayableChance(card, cardsInHand.count(card), cards, players);
+        // getRoundCloseChance(card, cardsInHand.count(card), cards, players);
 
-      cardValues.push_back({currentCardValue, card});
+        cardValues.push_back(
+          {getPlayableChance(card, cardsInHand.count(card), cards, players),
+           getRoundCloseChance(card, cardsInHand.count(card), cards, players),
+           card,
+           jesters}
+        );
+      }
     }
   }
-  std::sort(cardValues.begin(), cardValues.end());
+  std::sort(cardValues.begin(), cardValues.end(), sort);
 
   // for (auto cardValue: cardValues) {
-  //   std::cout << "Card: " << int(cardValue.second)
-  //             << ", Value: " << cardValue.first << std::endl;
+  //   std::cout << "Card: " << int(cardValue.card)
+  //             << ", Playable chance: " << cardValue.playableChance
+  //             << ", Round close chance: " << cardValue.roundCloseChance
+  //             << ", Jesters: " << cardValue.jesters << std::endl;
   // }
 
   if (isFirstInRound(cardStackTop)) {
-    Card card = cardValues[0].second;
+    Card card = cardValues[0].card;
+    uint64_t jesters = cardValues[0].jesters;
     uint64_t amount = cardsInHand.count(card);
-    cardStackTop = {card, amount, 0};
+    cardStackTop = {card, amount, jesters};
     removeCardsFromHand(card, amount);
+    removeCardsFromHand(cardLimit + 1, jesters);
     return true;
   }
 
   for (auto cardValue: cardValues) {
     if (canPlayCard(
-          cardValue.second, cardsInHand.count(cardValue.second), cardStackTop
+          cardValue.card,
+          cardsInHand.count(cardValue.card) + cardValue.jesters,
+          cardStackTop
         )) {
-      cardStackTop = {cardValue.second, cardStackTop.amount, 0};
-      removeCardsFromHand(cardValue.second, cardStackTop.amount);
+      removeCardsFromHand(
+        cardValue.card, cardStackTop.amount - cardValue.jesters
+      );
+      removeCardsFromHand(cardLimit + 1, cardValue.jesters);
+      cardStackTop = {
+        cardValue.card,
+        cardStackTop.amount - cardValue.jesters,
+        cardValue.jesters
+      };
       return true;
     }
   }

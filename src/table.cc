@@ -157,7 +157,7 @@ std::vector<Player *> Table::play() {
 
     if (debug) {
       std::chrono::milliseconds timespan(1000);
-      std::this_thread::sleep_for(timespan);
+      // std::this_thread::sleep_for(timespan);
     }
 
     if (passes == uint64_t(players.size() - 1))
