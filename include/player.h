@@ -21,6 +21,7 @@ struct playersInfo {
   std::multiset<Card> playersHand;
   uint64_t nrPlayers;
   std::vector<size_t> playersHandSize;
+  uint64_t passes;
 };
 
 class Player {
@@ -33,7 +34,7 @@ public:
     playersInfo players
   ) = 0;
 
-  void resetPlayer();
+  virtual void resetPlayer();
   void addCardsToHand(Card card);
   void removeCardsFromHand(Card card, uint64_t amount);
   void printCardsInHand();

@@ -90,8 +90,9 @@ double Player::getPlayableChance(
          player++) {
       uint64_t cardsLeft = currentCard - cards.count(currentCard) -
                            players.playersHand.count(currentCard);
-      // if (cardsLeft > 0)
-      //   cardsLeft += 2 - cards.count(cardLimit + 1);
+      if (cardsLeft > 0)
+        cardsLeft += 2 - cards.count(cardLimit + 1) -
+                     players.playersHand.count(cardLimit + 1);
 
       if (cardsLeft < amount)
         continue;
@@ -145,9 +146,9 @@ Player::getHandValue(std::multiset<Card> const cards, playersInfo players) {
   double handValue = 0.0;
   for (int i = 1; i <= 12; i++)
     if (cardsInHand.count(i) > 0)
-      // handValue += cardValue(i, cardsInHand.count(i), cards, players);
+      handValue += getPlayableChance(i, cardsInHand.count(i), cards, players);
 
-      return handValue;
+  return handValue;
 }
 
 void Player::printCardValues() {

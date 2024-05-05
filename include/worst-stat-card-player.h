@@ -12,6 +12,11 @@ public:
     playersInfo players
   ) override;
 
+  void resetPlayer() override {
+    cardsInHand.clear();
+    startingHandValue = 0;
+  }
+
 private:
   double startingHandValue;
 };

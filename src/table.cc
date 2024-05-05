@@ -123,7 +123,8 @@ std::vector<Player *> Table::play() {
     playersInfo playersInfo = {
       players[currentPlayer]->getCardsInHand(),
       static_cast<uint64_t>(players.size()),
-      playersHandSize
+      playersHandSize,
+      passes
     };
 
     if (debug && players[currentPlayer]->getPlayerType() == PlayerType::WORSTSTAT)
