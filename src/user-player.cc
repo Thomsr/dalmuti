@@ -5,9 +5,15 @@ UserPlayer::UserPlayer(uint64_t cardLimit, uint64_t playerNumber)
 
 bool UserPlayer::play(
   Cards::PlayedCardInfo &cardStackTop,
-  std::multiset<Card> const cards,
-  playersInfo playersInfo
+  uint64_t const passes,
+  std::multiset<Card> const &playedCards,
+  std::vector<size_t> const &opponentsHandSizes
 ) {
+
+  (void)passes;
+  (void)playedCards;
+  (void)opponentsHandSizes;
+
   if (!canPlay(cardStackTop))
     return false;
 
@@ -17,14 +23,24 @@ bool UserPlayer::play(
 
   std::string card;
   uint64_t amount;
+  uint64_t jesters;
   do {
+    std::cout << "Enter card to play or pass: ";
     std::cin >> card;
     if (card == "pass")
       return false;
+    std::cout << "Enter amount of cards: ";
     std::cin >> amount;
-  } while (cardsInHand.count(uint64_t(std::stoi(card)) < amount));
+    if (cardsInHand.count(cardLimit + 1) > 0) {
+      std::cout << "Enter amount of jesters: ";
+      std::cin >> jesters;
+    } else
+      jesters = 0;
+  } while (jesters > cardsInHand.count(cardLimit + 1) ||
+           cardsInHand.count(uint64_t(std::stoi(card)) + jesters < amount));
 
-  cardStackTop = {Card(std::stoi(card)), amount, 0};
+  cardStackTop = {Card(std::stoi(card)), amount, jesters};
   removeCardsFromHand(std::stoi(card), amount);
+  removeCardsFromHand(cardLimit + 1, jesters);
   return true;
 }

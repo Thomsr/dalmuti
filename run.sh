@@ -2,4 +2,4 @@
 
 make
 
-echo "0 0 0 3" | ./dalmuti 10000 4 0 12
+echo "0 0 0 3" | ./dalmuti 1000000 4 0 12

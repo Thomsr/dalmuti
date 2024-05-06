@@ -5,9 +5,14 @@ BestCardPlayer::BestCardPlayer(uint64_t cardLimit, uint64_t playerNumber)
 
 bool BestCardPlayer::play(
   Cards::PlayedCardInfo &cardStackTop,
-  std::multiset<Card> const cards,
-  playersInfo playersInfo
+  uint64_t const passes,
+  std::multiset<Card> const &playedCards,
+  std::vector<size_t> const &opponentsHandSizes
 ) {
+  (void)playedCards;
+  (void)passes;
+  (void)opponentsHandSizes;
+
   if (cardsInHand.size() == 0)
     return false;
 
@@ -26,7 +31,7 @@ bool BestCardPlayer::play(
       return true;
     }
     if (cardsInHand.count(card) > 0) {
-      // Jesters
+      // jesters
       if (cardsInHand.count(cardLimit + 1) == 1 &&
           cardsInHand.count(card) + 1 ==
               cardStackTop.amount + cardStackTop.jesters) {

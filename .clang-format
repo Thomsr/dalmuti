@@ -42,4 +42,5 @@ SpaceBeforeAssignmentOperators: true
 SpaceBeforeCaseColon: false
 SpaceBeforeCtorInitializerColon: false
 SpaceBeforeRangeBasedForLoopColon: false
-  
+FixNamespaceComments: false
+NamespaceIndentation: All

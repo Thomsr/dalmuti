@@ -6,12 +6,12 @@
 typedef uint8_t Card;
 
 namespace Cards {
-struct PlayedCardInfo {
-  Card card;
-  uint64_t amount;
-  uint64_t jesters;
-};
+  struct PlayedCardInfo {
+    Card card;
+    uint64_t amount;
+    uint64_t jesters;
+  };
 
-}; // namespace Cards
+};
 
 #endif

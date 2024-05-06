@@ -8,8 +8,9 @@ public:
   WorstCardPlayer(uint64_t cardLimit, uint64_t playerNumber);
   bool play(
     Cards::PlayedCardInfo &cardStackTop,
-    std::multiset<Card> const cards,
-    playersInfo players
+    uint64_t const passes,
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
   ) override;
 };
 

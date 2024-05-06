@@ -34,24 +34,6 @@ void Table::printPlayersRanking() {
   std::cout << std::endl;
 }
 
-void Table::printPlayersHandValue() {
-  for (size_t currentPlayer = 0; currentPlayer < players.size();
-       currentPlayer++) {
-    std::vector<size_t> playersHandSize;
-    for (size_t player = 0; player < players.size(); player++) {
-      if (player != currentPlayer)
-        playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
-    }
-    playersInfo playersInfo = {
-      players[currentPlayer]->getCardsInHand(),
-      static_cast<uint64_t>(players.size()),
-      playersHandSize
-    };
-    std::cout << players[currentPlayer]->getHandValue(cards, playersInfo)
-              << std::endl;
-  }
-}
-
 void Table::distributeCards() {
   // Shuffle the cards
   std::vector<Card> shuffledCards(cards.begin(), cards.end());
@@ -103,6 +85,7 @@ void Table::reset() {
   players.clear();
   players = nextPlayers;
   nextPlayers.clear();
+  playedCards.clear();
   setCardLimit(12);
   distributeCards();
 }
@@ -112,25 +95,15 @@ std::vector<Player *> Table::play() {
   uint64_t passes = 0;
 
   while (!allPlayersDone()) {
-    std::vector<size_t> playersHandSize;
-    // Get the amount of cards in hand for all players, starting from the player
-    // right to the player left of the currentPlayer
-    for (int player = currentPlayer - 1; player >= 0; player--)
-      playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
-    for (int player = players.size() - 1; player > currentPlayer; player--)
-      playersHandSize.push_back(players[player]->getAmountOfCardsInHand());
-
-    playersInfo playersInfo = {
-      players[currentPlayer]->getCardsInHand(),
-      static_cast<uint64_t>(players.size()),
-      playersHandSize,
-      passes
-    };
+    std::vector<size_t> opponentsHandSizes =
+      getOpponentsHandSizes(currentPlayer);
 
     if (debug && players[currentPlayer]->getPlayerType() == PlayerType::WORSTSTAT)
       players[3]->printCardsInHand();
 
-    if (players[currentPlayer]->play(cardStackTop, cards, playersInfo)) {
+    if (players[currentPlayer]->play(
+          cardStackTop, passes, playedCards, opponentsHandSizes
+        )) {
       if (debug) {
         std::cout << players[currentPlayer]->getPlayerNumber()
                   << " played: " << int(cardStackTop.card) << " "
@@ -139,35 +112,25 @@ std::vector<Player *> Table::play() {
       }
 
       passes = 0;
-      for (uint64_t i = 0; i < cardStackTop.amount; i++)
-        cards.insert(cardStackTop.card);
+      addCardsToPlayedCards(cardStackTop.card, cardStackTop.amount);
 
       if (cardStackTop.jesters > 0) {
-        for (uint64_t i = 0; i < cardStackTop.jesters; i++)
-          cards.insert(cardLimit + 1);
+        addCardsToPlayedCards(cardLimit + 1, cardStackTop.jesters);
         cardStackTop.amount += cardStackTop.jesters;
         cardStackTop.jesters = 0;
       }
     } else {
-      if (debug) {
+      if (debug)
         std::cout << players[currentPlayer]->getPlayerNumber() << " passed"
                   << std::endl;
-      }
       passes++;
     }
-
-    if (debug) {
-      std::chrono::milliseconds timespan(1000);
-      // std::this_thread::sleep_for(timespan);
-    }
-
     if (passes == uint64_t(players.size() - 1))
       cardStackTop = {0, 0, 0};
 
     currentPlayer = (currentPlayer + 1) % players.size();
   }
 
-  // printPlayersRanking();
   reset();
   swapCards();
   return players;
@@ -200,6 +163,20 @@ bool Table::allPlayersDone() {
     return true;
   }
   return false;
+}
+
+std::vector<size_t> Table::getOpponentsHandSizes(int player) {
+  std::vector<size_t> opponentsHandSizes;
+  for (int i = player - 1; i >= 0; i--)
+    opponentsHandSizes.push_back(players[i]->getAmountOfCardsInHand());
+  for (int i = int(players.size()) - 1; i > player; i--)
+    opponentsHandSizes.push_back(players[i]->getAmountOfCardsInHand());
+  return opponentsHandSizes;
+}
+
+void Table::addCardsToPlayedCards(Card card, uint64_t amount) {
+  for (uint64_t i = 0; i < amount; i++)
+    playedCards.insert(card);
 }
 
 Table::~Table() {

@@ -3,14 +3,60 @@
 
 #include "player.h"
 
+struct CardValue {
+  double totalChance;
+  double playableChance;
+  double roundCloseChance;
+  Card card;
+  uint64_t jesters;
+};
+
 class StatPlayer : public Player {
 public:
-  StatPlayer(uint64_t cardLimit, uint64_t playerNumber);
-  bool play(
-    Cards::PlayedCardInfo &cardStackTop,
-    std::multiset<Card> const cards,
-    playersInfo players
-  ) override;
+  StatPlayer(uint64_t cardLimit, uint64_t playerNumber, PlayerType playerType);
+
+  double getHandValue(
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
+  );
+
+protected:
+  /**
+   * @returns The value of amount times card, higher is better.
+   */
+  double getPlayableChance(
+    Card card,
+    uint64_t amount,
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
+  );
+
+  /**
+   * @returns The value of amount x card of closing the round,
+   * lower is better.
+   * @example card = 1, amount = 1 closeValue = 0.0. Since no card can be played
+   * over 1x 1.
+   */
+  double getRoundCloseChance(
+    Card card,
+    uint64_t amount,
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
+  );
+
+  static bool sortCardValue(const CardValue &a, const CardValue &b) {
+    return a.totalChance < b.totalChance;
+  }
+
+protected:
+  void printCardValues(std::vector<CardValue> cardValues);
+
+private:
+  unsigned long long combination(const int n, const int k);
+  double
+  hypergeometricProbability(const int n, const int x, const int N, const int M);
+
+  double combinations[80][80];
 };
 
 #endif

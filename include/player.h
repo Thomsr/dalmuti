@@ -1,7 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "cards.h"
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -9,16 +8,16 @@
 #include <set>
 #include <stdexcept>
 
+#include "cards.h"
+
 enum PlayerType {
   WORSTCARD,
   BESTCARD,
-  STAT,
   USER,
   WORSTSTAT
 };
 
-struct playersInfo {
-  std::multiset<Card> playersHand;
+struct play {
   uint64_t nrPlayers;
   std::vector<size_t> playersHandSize;
   uint64_t passes;
@@ -26,40 +25,33 @@ struct playersInfo {
 
 class Player {
 public:
-  Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType PlayerType);
+  Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType playerType);
 
   virtual bool play(
     Cards::PlayedCardInfo &cardStackTop,
-    std::multiset<Card> const cards,
-    playersInfo players
+    uint64_t const passes,
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
   ) = 0;
 
-  virtual void resetPlayer();
+  bool canPlay(Cards::PlayedCardInfo const &cardStackTop);
+  bool canPlayCard(
+    const Card card,
+    const uint64_t amount,
+    const Cards::PlayedCardInfo &cardStackTop
+  ) const;
   void addCardsToHand(Card card);
   void removeCardsFromHand(Card card, uint64_t amount);
   void printCardsInHand();
-  bool canPlay(Cards::PlayedCardInfo const &cardStackTop);
-  size_t getAmountOfCardsInHand() { return cardsInHand.size(); }
-  uint64_t getPlayerNumber() const { return playerNumber; }
-  PlayerType getPlayerType() const { return playerType; }
-  Card getBestCard() { return *(cardsInHand.begin()); }
-  Card getWorstCard() { return *(cardsInHand.rbegin()); }
-  std::multiset<Card> getCardsInHand() { return cardsInHand; }
-  double getPlayableChance(
-    Card card,
-    uint64_t amount,
-    std::multiset<Card> const cards,
-    playersInfo players
-  );
-  double getRoundCloseChance(
-    Card card,
-    uint64_t amount,
-    std::multiset<Card> const cards,
-    playersInfo players
-  );
-  double getHandValue(std::multiset<Card> const cards, playersInfo players);
-  void printCardValues();
 
+  inline size_t getAmountOfCardsInHand() { return cardsInHand.size(); }
+  inline uint64_t getPlayerNumber() const { return playerNumber; }
+  inline PlayerType getPlayerType() const { return playerType; }
+  inline Card getBestCard() { return *(cardsInHand.begin()); }
+  inline Card getWorstCard() { return *(cardsInHand.rbegin()); }
+  inline std::multiset<Card> getCardsInHand() { return cardsInHand; }
+
+  virtual void resetPlayer();
   virtual ~Player(){};
 
 protected:
@@ -67,10 +59,11 @@ protected:
     return card >= 1 && card <= cardLimit + 1;
   }
 
-  unsigned long long combination(int n, int k);
-  double hypergeometricProbability(int n, int x, int N, int M);
+  inline bool isFirstInRound(Cards::PlayedCardInfo const &cardStackTop) {
+    return cardStackTop.card == 0;
+  }
 
-  unsigned long long combinations[1000][1000] = {0};
+  Card const jester;
   uint64_t playerNumber;
   PlayerType playerType;
   std::multiset<Card> cardsInHand;

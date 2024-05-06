@@ -1,58 +1,117 @@
 #include "stat-player.h"
 
-StatPlayer::StatPlayer(uint64_t cardLimit, uint64_t playerNumber)
-  : Player(cardLimit, playerNumber, PlayerType::STAT) {}
+StatPlayer::StatPlayer(
+  uint64_t cardLimit, uint64_t playerNumber, PlayerType type
+)
+  : Player(cardLimit, playerNumber, type) {
+  for (int i = 0; i < 80; i++)
+    for (int j = 0; j < 80; j++)
+      combinations[i][j] = 0;
+}
 
-bool StatPlayer::play(
-  Cards::PlayedCardInfo &cardStackTop,
-  std::multiset<Card> const cards,
-  playersInfo players
+double StatPlayer::getHandValue(
+  std::multiset<Card> const &playedCards,
+  std::vector<size_t> const &opponentsHandSizes
 ) {
-  if (cardsInHand.empty())
-    return false;
+  double handValue = 0.0;
+  for (int i = 1; i <= 12; i++)
+    if (cardsInHand.count(i) > 0)
+      handValue += getRoundCloseChance(
+        i, cardsInHand.count(i), playedCards, opponentsHandSizes
+      );
 
-  removeCardsFromHand(
-    cardLimit + 1,
-    cardsInHand.count(cardLimit + 1)
-  ); // Remove jesters from hand (if any)
+  return handValue;
+}
 
-  std::pair<Card, double> bestCard = {0, 5.0};
+double StatPlayer::getPlayableChance(
+  Card card,
+  uint64_t amount,
+  std::multiset<Card> const &playedCards,
+  std::vector<size_t> const &opponentsHandSizes
+) {
+  double playChance = 0;
+  uint64_t totalCardsLeft = 80 - playedCards.size() - cardsInHand.size();
 
-  if (cardStackTop.card == 0) {
-    bestCard.second = 0;
-    for (Card card = getWorstCard(); card >= 1; card--) {
-      if (cardsInHand.count(card) != 0) {
-        if (getRoundCloseChance(card, cardsInHand.count(card), cards, players) > bestCard.second)
-          bestCard = {
-            card,
-            getRoundCloseChance(card, cardsInHand.count(card), cards, players)
-          };
+  for (uint64_t currentCard = card + 1; currentCard < cardLimit;
+       currentCard++) {
+    for (uint64_t player = 0; player < opponentsHandSizes.size(); player++) {
+      uint64_t cardsLeft = currentCard - playedCards.count(currentCard) -
+                           cardsInHand.count(currentCard);
+      if (cardsLeft > 0) {
+        uint64_t jokersLeft = 2 - playedCards.count(cardLimit + 1) -
+                              cardsInHand.count(cardLimit + 1);
+        cardsLeft += jokersLeft;
+      }
+
+      if (cardsLeft < amount)
+        continue;
+
+      for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--) {
+        playChance +=
+          (hypergeometricProbability(
+             opponentsHandSizes[player], amount, totalCardsLeft, cardsLeft
+           ) /
+           (player + 1));
       }
     }
-    if (bestCard.first == 0)
-      return false;
-
-    cardStackTop = {bestCard.first, cardsInHand.count(bestCard.first), 0};
-    removeCardsFromHand(bestCard.first, cardsInHand.count(bestCard.first));
-    return true;
   }
+  return playChance;
+}
 
-  for (Card card = cardStackTop.card - 1; card >= 1; card--) {
-    // std::cout << "Card: " << int(card) << std::endl;
-    if (cardsInHand.count(card) != 0) {
-      if (cardsInHand.count(card) >= cardStackTop.amount) {
-        if (getRoundCloseChance(card, cardStackTop.amount, cards, players) < bestCard.second)
-          bestCard = {
-            card, getRoundCloseChance(card, cardStackTop.amount, cards, players)
-          };
+double StatPlayer::getRoundCloseChance(
+  Card card,
+  uint64_t amount,
+  std::multiset<Card> const &playedCards,
+  std::vector<size_t> const &opponentsHandSizes
+) {
+  double roundCloseChance = 0;
+  uint64_t totalCardsLeft = 80 - playedCards.size() - cardsInHand.size();
+
+  for (uint64_t currentCard = amount; currentCard < card; currentCard++) {
+    for (uint64_t player = 0; player < opponentsHandSizes.size(); player++) {
+      uint64_t cardsLeft = currentCard - playedCards.count(currentCard) -
+                           cardsInHand.count(currentCard);
+
+      if (cardsLeft < amount)
+        continue;
+
+      for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--) {
+        roundCloseChance += hypergeometricProbability(
+          opponentsHandSizes[player], amount, totalCardsLeft, cardsLeft
+        );
       }
     }
   }
+  return roundCloseChance;
+}
 
-  if (bestCard.first == 0)
-    return false;
+void StatPlayer::printCardValues(std::vector<CardValue> cardValues) {
+  for (auto cardValue: cardValues) {
+    std::cout << "Card: " << int(cardValue.card)
+              << ",\t\t totalChance: " << cardValue.totalChance
+              << ",\t\t Playable chance: " << cardValue.playableChance
+              << ",\t\t Round close chance: " << cardValue.roundCloseChance
+              << ",\t jesters: " << cardValue.jesters << std::endl;
+  }
+}
 
-  cardStackTop = {bestCard.first, cardStackTop.amount, 0};
-  removeCardsFromHand(bestCard.first, cardStackTop.amount);
-  return true;
+unsigned long long StatPlayer::combination(const int n, const int k) {
+  if (n < 0 || k < 0)
+    return 0;
+
+  if (k == 0 || k == n)
+    return 1;
+  else {
+    if (combinations[n][k] == 0)
+      combinations[n][k] = combination(n - 1, k - 1) + combination(n - 1, k);
+    return combinations[n][k];
+  }
+}
+
+double StatPlayer::hypergeometricProbability(
+  const int n, const int x, const int N, const int M
+) {
+  double numerator = combination(M, x) * combination(N - M, n - x);
+  double denominator = combination(N, n);
+  return numerator / denominator;
 }

@@ -1,24 +1,30 @@
 #ifndef WORST_STAT_CARD_PLAYER_H
 #define WORST_STAT_CARD_PLAYER_H
 
-#include "player.h"
+#include "stat-player.h"
 
-class WorstStatCardPlayer : public Player {
+class WorstStatCardPlayer : public StatPlayer {
 public:
   WorstStatCardPlayer(uint64_t cardLimit, uint64_t playerNumber);
   bool play(
     Cards::PlayedCardInfo &cardStackTop,
-    std::multiset<Card> const cards,
-    playersInfo players
+    uint64_t const passes,
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
   ) override;
 
-  void resetPlayer() override {
-    cardsInHand.clear();
-    startingHandValue = 0;
-  }
-
 private:
-  double startingHandValue;
+  CardValue getWorstCardValue(
+    std::vector<CardValue> const cardValues,
+    Cards::PlayedCardInfo const &cardStackTop
+  );
+
+  void getCardValues(
+    std::vector<CardValue> &cardValues,
+    Cards::PlayedCardInfo &cardStackTop,
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
+  );
 };
 
 #endif

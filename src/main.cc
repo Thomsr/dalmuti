@@ -1,9 +1,10 @@
-#include "table.h"
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
 #include <vector>
+
+#include "table.h"
 
 #define PBSTR "||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||"
 
@@ -99,7 +100,7 @@ int main(int argc, char *argv[]) {
   int numberOfRounds = std::atoi(argv[1]);
   Table table(cardLimit, debug);
 
-  for (int i = 1; i <= std::atoi(argv[2]); i++) {
+  for (int i = 1; i <= std::stoi(argv[2]); i++) {
     int playerType;
     std::cin >> playerType;
     switch (playerType) {
@@ -110,10 +111,13 @@ int main(int argc, char *argv[]) {
         table.addPlayer(new BestCardPlayer(cardLimit, i));
         break;
       case 2:
-        table.addPlayer(new StatPlayer(cardLimit, i));
+        table.addPlayer(new TestPlayer(cardLimit, i));
         break;
       case 3:
         table.addPlayer(new WorstStatCardPlayer(cardLimit, i));
+        break;
+      case 4:
+        table.addPlayer(new UserPlayer(cardLimit, i));
         break;
     }
   }
