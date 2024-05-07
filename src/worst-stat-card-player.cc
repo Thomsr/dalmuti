@@ -35,7 +35,7 @@ bool WorstStatCardPlayer::play(
 }
 
 CardValue WorstStatCardPlayer::getWorstCardValue(
-  std::vector<CardValue> const cardValues,
+  std::vector<CardValue> const &cardValues,
   Cards::PlayedCardInfo const &cardStackTop
 ) {
   if (isFirstInRound(cardStackTop) && cardValues[0].card == jester && cardValues.size() > 1)

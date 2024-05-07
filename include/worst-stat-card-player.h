@@ -15,7 +15,7 @@ public:
 
 private:
   CardValue getWorstCardValue(
-    std::vector<CardValue> const cardValues,
+    std::vector<CardValue> const &cardValues,
     Cards::PlayedCardInfo const &cardStackTop
   );
 
