@@ -83,6 +83,35 @@ double StatPlayer::getRoundCloseChance(
   return roundCloseChance;
 }
 
+void StatPlayer::getCardValues(
+  std::vector<CardValue> &cardValues,
+  Cards::PlayedCardInfo const &cardStackTop,
+  std::multiset<Card> const &playedCards,
+  std::vector<size_t> const &opponentsHandSizes
+) {
+  // If we have played more than half our cards, we should consider playing the
+  // jesters standalone
+  Card tillCardLimit =
+    cardsInHand.size() > (80 / cardsInHand.size()) / 2 ? cardLimit : jester;
+
+  // Add the card values to the vector
+  for (Card card = 1; card <= tillCardLimit; card++) {
+    if (cardsInHand.count(card) == 0)
+      continue;
+
+    // 0 if we are calculating the value of jesters
+    uint64_t amountOfJesters = card == jester ? 0 : cardsInHand.count(jester);
+    for (uint64_t jesters = 0; jesters <= amountOfJesters; jesters++) {
+      if (!isFirstInRound(cardStackTop) && !canPlayCard(card, cardsInHand.count(card) + jesters, cardStackTop))
+        continue;
+
+      cardValues.push_back(
+        getCardValue(card, jesters, playedCards, opponentsHandSizes)
+      );
+    }
+  }
+}
+
 void StatPlayer::printCardValues(std::vector<CardValue> cardValues) {
   for (auto cardValue: cardValues) {
     std::cout << "Card: " << int(cardValue.card)

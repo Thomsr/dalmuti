@@ -19,6 +19,18 @@ public:
   }
 
 private:
+  CardValue getWorstCardValue(
+    std::vector<CardValue> const cardValues,
+    Cards::PlayedCardInfo const &cardStackTop
+  );
+
+  CardValue getCardValue(
+    Card const &card,
+    uint64_t const &jesters,
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
+  ) override;
+
   double startingHandValue;
 };
 

@@ -48,7 +48,20 @@ protected:
     return a.totalChance < b.totalChance;
   }
 
-protected:
+  void getCardValues(
+    std::vector<CardValue> &cardValues,
+    Cards::PlayedCardInfo const &cardStackTop,
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
+  );
+
+  virtual CardValue getCardValue(
+    Card const &card,
+    uint64_t const &jesters,
+    std::multiset<Card> const &playedCards,
+    std::vector<size_t> const &opponentsHandSizes
+  ) = 0;
+
   void printCardValues(std::vector<CardValue> cardValues);
 
 private:

@@ -19,12 +19,12 @@ private:
     Cards::PlayedCardInfo const &cardStackTop
   );
 
-  void getCardValues(
-    std::vector<CardValue> &cardValues,
-    Cards::PlayedCardInfo const &cardStackTop,
+  CardValue getCardValue(
+    Card const &card,
+    uint64_t const &jesters,
     std::multiset<Card> const &playedCards,
     std::vector<size_t> const &opponentsHandSizes
-  );
+  ) override;
 };
 
 #endif

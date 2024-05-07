@@ -44,42 +44,24 @@ CardValue WorstStatCardPlayer::getWorstCardValue(
   return cardValues[0];
 }
 
-void WorstStatCardPlayer::getCardValues(
-  std::vector<CardValue> &cardValues,
-  Cards::PlayedCardInfo const &cardStackTop,
+CardValue WorstStatCardPlayer::getCardValue(
+  Card const &card,
+  uint64_t const &jesters,
   std::multiset<Card> const &playedCards,
   std::vector<size_t> const &opponentsHandSizes
 ) {
-  // If we have played more than half our cards, we should consider playing the
-  // jesters standalone
-  Card tillCardLimit =
-    cardsInHand.size() > (80 / cardsInHand.size()) / 2 ? cardLimit : jester;
+  double playableChance = getPlayableChance(
+    card, cardsInHand.count(card) + jesters, playedCards, opponentsHandSizes
+  );
+  double roundCloseChance = getRoundCloseChance(
+    card, cardsInHand.count(card) + jesters, playedCards, opponentsHandSizes
+  );
 
-  // Add the card values to the vector
-  for (Card card = 1; card <= tillCardLimit; card++) {
-    if (cardsInHand.count(card) == 0)
-      continue;
-
-    // 0 if we are calculating the value of jesters
-    uint64_t amountOfJesters = card == jester ? 0 : cardsInHand.count(jester);
-    for (uint64_t jesters = 0; jesters <= amountOfJesters; jesters++) {
-      if (!isFirstInRound(cardStackTop) && !canPlayCard(card, cardsInHand.count(card) + jesters, cardStackTop))
-        continue;
-
-      double playableChance = getPlayableChance(
-        card, cardsInHand.count(card) + jesters, playedCards, opponentsHandSizes
-      );
-      double roundCloseChance = getRoundCloseChance(
-        card, cardsInHand.count(card) + jesters, playedCards, opponentsHandSizes
-      );
-
-      cardValues.push_back(
-        {playableChance * 2 - card * .5,
-         playableChance,
-         roundCloseChance,
-         card,
-         jesters}
-      );
-    }
-  }
+  return (CardValue{
+    playableChance * 2 - card * .5,
+    playableChance,
+    roundCloseChance,
+    card,
+    jesters
+  });
 }
