@@ -17,12 +17,6 @@ enum PlayerType {
   WORSTSTAT
 };
 
-struct play {
-  uint64_t nrPlayers;
-  std::vector<size_t> playersHandSize;
-  uint64_t passes;
-};
-
 class Player {
 public:
   Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType playerType);
@@ -55,7 +49,7 @@ public:
   virtual ~Player(){};
 
 protected:
-  inline bool isValidCard(Card card) {
+  inline bool isValidCard(Card const &card) {
     return card >= 1 && card <= cardLimit + 1;
   }
 
