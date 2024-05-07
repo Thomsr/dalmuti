@@ -25,8 +25,8 @@ protected:
    * @returns The value of amount times card, higher is better.
    */
   double getPlayableChance(
-    Card card,
-    uint64_t amount,
+    Card const &card,
+    uint64_t const &amount,
     std::multiset<Card> const &playedCards,
     std::vector<size_t> const &opponentsHandSizes
   );
@@ -38,8 +38,8 @@ protected:
    * over 1x 1.
    */
   double getRoundCloseChance(
-    Card card,
-    uint64_t amount,
+    Card const &card,
+    uint64_t const &amount,
     std::multiset<Card> const &playedCards,
     std::vector<size_t> const &opponentsHandSizes
   );
@@ -67,8 +67,11 @@ protected:
 private:
   static double combinations[80][80];
   unsigned long long combination(const int n, const int k);
-  double
-  hypergeometricProbability(const int n, const int x, const int N, const int M);
+  double hypergeometricProbability(
+    const int &n, const int &x, const int &N, const int &M
+  );
+  uint64_t
+  getCardsLeft(Card const &card, std::multiset<Card> const &playedCards);
 };
 
 #endif

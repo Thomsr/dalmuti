@@ -22,24 +22,18 @@ double StatPlayer::getHandValue(
 }
 
 double StatPlayer::getPlayableChance(
-  Card card,
-  uint64_t amount,
+  Card const &card,
+  uint64_t const &amount,
   std::multiset<Card> const &playedCards,
   std::vector<size_t> const &opponentsHandSizes
 ) {
   double playChance = 0;
   uint64_t totalCardsLeft = 80 - playedCards.size() - cardsInHand.size();
 
-  for (uint64_t currentCard = card + 1; currentCard < cardLimit;
-       currentCard++) {
-    for (uint64_t player = 0; player < opponentsHandSizes.size(); player++) {
-      uint64_t cardsLeft = currentCard - playedCards.count(currentCard) -
-                           cardsInHand.count(currentCard);
-      if (cardsLeft > 0) {
-        uint64_t jokersLeft = 2 - playedCards.count(cardLimit + 1) -
-                              cardsInHand.count(cardLimit + 1);
-        cardsLeft += jokersLeft;
-      }
+  for (uint64_t player = 0; player < opponentsHandSizes.size(); player++) {
+    for (uint64_t currentCard = card + 1; currentCard < cardLimit;
+         currentCard++) {
+      uint64_t cardsLeft = getCardsLeft(currentCard, playedCards);
 
       if (cardsLeft < amount)
         continue;
@@ -55,18 +49,17 @@ double StatPlayer::getPlayableChance(
 }
 
 double StatPlayer::getRoundCloseChance(
-  Card card,
-  uint64_t amount,
+  Card const &card,
+  uint64_t const &amount,
   std::multiset<Card> const &playedCards,
   std::vector<size_t> const &opponentsHandSizes
 ) {
   double roundCloseChance = 0;
   uint64_t totalCardsLeft = 80 - playedCards.size() - cardsInHand.size();
 
-  for (uint64_t currentCard = amount; currentCard < card; currentCard++) {
-    for (uint64_t player = 0; player < opponentsHandSizes.size(); player++) {
-      uint64_t cardsLeft = currentCard - playedCards.count(currentCard) -
-                           cardsInHand.count(currentCard);
+  for (uint64_t player = 0; player < opponentsHandSizes.size(); player++) {
+    for (uint64_t currentCard = 1; currentCard < card; currentCard++) {
+      uint64_t cardsLeft = getCardsLeft(currentCard, playedCards);
 
       if (cardsLeft < amount)
         continue;
@@ -132,9 +125,25 @@ unsigned long long StatPlayer::combination(const int n, const int k) {
 }
 
 double StatPlayer::hypergeometricProbability(
-  const int n, const int x, const int N, const int M
+  const int &n, const int &x, const int &N, const int &M
 ) {
   double numerator = combination(M, x) * combination(N - M, n - x);
   double denominator = combination(N, n);
   return numerator / denominator;
+}
+
+uint64_t StatPlayer::getCardsLeft(
+  Card const &card, std::multiset<Card> const &playedCards
+) {
+  int cardsLeft = card - playedCards.count(card) - cardsInHand.count(card);
+  if (cardsLeft < 0)
+    throw std::runtime_error("Negative cards left");
+
+  if (cardsLeft == 0)
+    return 0;
+
+  uint64_t jestersLeft =
+    2 - playedCards.count(jester) - cardsInHand.count(jester);
+
+  return cardsLeft + jestersLeft;
 }
