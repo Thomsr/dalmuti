@@ -44,13 +44,11 @@ double StatPlayer::getPlayableChance(
       if (cardsLeft < amount)
         continue;
 
-      for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--) {
-        playChance +=
-          (hypergeometricProbability(
-             opponentsHandSizes[player], amount, totalCardsLeft, cardsLeft
-           ) /
-           (player + 1));
-      }
+      playChance +=
+        hypergeometricProbability(
+          opponentsHandSizes[player], amount, totalCardsLeft, cardsLeft
+        ) /
+        (player + 1);
     }
   }
   return playChance;
@@ -73,11 +71,9 @@ double StatPlayer::getRoundCloseChance(
       if (cardsLeft < amount)
         continue;
 
-      for (uint64_t j = cardsLeft; j > cardsLeft - amount; j--) {
-        roundCloseChance += hypergeometricProbability(
-          opponentsHandSizes[player], amount, totalCardsLeft, cardsLeft
-        );
-      }
+      roundCloseChance += hypergeometricProbability(
+        opponentsHandSizes[player], amount, totalCardsLeft, cardsLeft
+      );
     }
   }
   return roundCloseChance;
