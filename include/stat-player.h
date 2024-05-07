@@ -52,11 +52,10 @@ protected:
   void printCardValues(std::vector<CardValue> cardValues);
 
 private:
+  static double combinations[80][80];
   unsigned long long combination(const int n, const int k);
   double
   hypergeometricProbability(const int n, const int x, const int N, const int M);
-
-  double combinations[80][80];
 };
 
 #endif

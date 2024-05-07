@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
@@ -126,6 +127,16 @@ int main(int argc, char *argv[]) {
             << std::endl;
 
   table.distributeCards();
+
+  // Measure the time it takes to run the getStatistics function
+  auto startTime = std::chrono::high_resolution_clock::now();
   getStatistics(numberOfRounds, table, std::atoi(argv[2]));
+  auto endTime = std::chrono::high_resolution_clock::now();
+  auto duration =
+    std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+
+  std::cout << "Program finished in " << duration.count() << " milliseconds."
+            << std::endl;
+
   return 0;
 }

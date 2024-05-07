@@ -10,13 +10,13 @@ void Player::resetPlayer() {
   cardsInHand.clear();
 }
 
-void Player::addCardsToHand(Card card) {
+void Player::addCardsToHand(Card const &card) {
   if (!isValidCard(card))
     throw std::range_error("Card " + std::to_string(card) + " is not valid");
   cardsInHand.insert(card);
 }
 
-void Player::removeCardsFromHand(Card card, uint64_t amount) {
+void Player::removeCardsFromHand(Card const &card, uint64_t const &amount) {
   if (amount == 0)
     return;
 
@@ -56,9 +56,9 @@ bool Player::canPlay(Cards::PlayedCardInfo const &cardStackTop) {
 }
 
 bool Player::canPlayCard(
-  const Card card,
-  const uint64_t amount,
-  const Cards::PlayedCardInfo &cardStackTop
+  Card const &card,
+  uint64_t const &amount,
+  Cards::PlayedCardInfo const &cardStackTop
 ) const {
   return card < cardStackTop.card &&
          amount == cardStackTop.amount + cardStackTop.jesters;

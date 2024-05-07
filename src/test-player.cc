@@ -5,7 +5,7 @@ TestPlayer::TestPlayer(uint64_t cardLimit, uint64_t playerNumber)
 
 bool TestPlayer::play(
   Cards::PlayedCardInfo &cardStackTop,
-  uint64_t const passes,
+  uint64_t const &passes,
   std::multiset<Card> const &playedCards,
   std::vector<size_t> const &opponentsHandSizes
 ) {
@@ -15,7 +15,7 @@ bool TestPlayer::play(
   if (!canPlay(cardStackTop))
     return false;
 
-  double aggressiveness =
+  double const aggressiveness =
     ((passes / double(opponentsHandSizes.size())) + (startingHandValue / 10));
 
   std::vector<CardValue> cardValues;

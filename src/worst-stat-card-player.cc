@@ -7,7 +7,7 @@ WorstStatCardPlayer::WorstStatCardPlayer(
 
 bool WorstStatCardPlayer::play(
   Cards::PlayedCardInfo &cardStackTop,
-  uint64_t const passes,
+  uint64_t const &passes,
   std::multiset<Card> const &playedCards,
   std::vector<size_t> const &opponentsHandSizes
 ) {
@@ -46,7 +46,7 @@ CardValue WorstStatCardPlayer::getWorstCardValue(
 
 void WorstStatCardPlayer::getCardValues(
   std::vector<CardValue> &cardValues,
-  Cards::PlayedCardInfo &cardStackTop,
+  Cards::PlayedCardInfo const &cardStackTop,
   std::multiset<Card> const &playedCards,
   std::vector<size_t> const &opponentsHandSizes
 ) {

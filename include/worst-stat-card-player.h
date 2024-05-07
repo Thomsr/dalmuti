@@ -8,7 +8,7 @@ public:
   WorstStatCardPlayer(uint64_t cardLimit, uint64_t playerNumber);
   bool play(
     Cards::PlayedCardInfo &cardStackTop,
-    uint64_t const passes,
+    uint64_t const &passes,
     std::multiset<Card> const &playedCards,
     std::vector<size_t> const &opponentsHandSizes
   ) override;
@@ -21,7 +21,7 @@ private:
 
   void getCardValues(
     std::vector<CardValue> &cardValues,
-    Cards::PlayedCardInfo &cardStackTop,
+    Cards::PlayedCardInfo const &cardStackTop,
     std::multiset<Card> const &playedCards,
     std::vector<size_t> const &opponentsHandSizes
   );

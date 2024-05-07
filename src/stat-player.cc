@@ -1,13 +1,11 @@
 #include "stat-player.h"
 
+double StatPlayer::combinations[80][80] = {};
+
 StatPlayer::StatPlayer(
   uint64_t cardLimit, uint64_t playerNumber, PlayerType type
 )
-  : Player(cardLimit, playerNumber, type) {
-  for (int i = 0; i < 80; i++)
-    for (int j = 0; j < 80; j++)
-      combinations[i][j] = 0;
-}
+  : Player(cardLimit, playerNumber, type) {}
 
 double StatPlayer::getHandValue(
   std::multiset<Card> const &playedCards,
@@ -102,9 +100,9 @@ unsigned long long StatPlayer::combination(const int n, const int k) {
   if (k == 0 || k == n)
     return 1;
   else {
-    if (combinations[n][k] == 0)
+    if (StatPlayer::combinations[n][k] == 0)
       combinations[n][k] = combination(n - 1, k - 1) + combination(n - 1, k);
-    return combinations[n][k];
+    return StatPlayer::combinations[n][k];
   }
 }
 

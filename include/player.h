@@ -29,19 +29,19 @@ public:
 
   virtual bool play(
     Cards::PlayedCardInfo &cardStackTop,
-    uint64_t const passes,
+    uint64_t const &passes,
     std::multiset<Card> const &playedCards,
     std::vector<size_t> const &opponentsHandSizes
   ) = 0;
 
   bool canPlay(Cards::PlayedCardInfo const &cardStackTop);
   bool canPlayCard(
-    const Card card,
-    const uint64_t amount,
-    const Cards::PlayedCardInfo &cardStackTop
+    Card const &card,
+    uint64_t const &amount,
+    Cards::PlayedCardInfo const &cardStackTop
   ) const;
-  void addCardsToHand(Card card);
-  void removeCardsFromHand(Card card, uint64_t amount);
+  void addCardsToHand(Card const &card);
+  void removeCardsFromHand(Card const &card, uint64_t const &amount);
   void printCardsInHand();
 
   inline size_t getAmountOfCardsInHand() { return cardsInHand.size(); }
