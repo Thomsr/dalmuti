@@ -24,7 +24,9 @@ bool WorstStatCardPlayer::play(
   std::sort(cardValues.begin(), cardValues.end(), sortCardValue);
   // printCardValues(cardValues);
 
-  CardValue worstCardValue = getWorstCardValue(cardValues, cardStackTop);
+  CardValue worstCardValue;
+  if (!getCardValueToPlay(worstCardValue, cardValues, cardStackTop))
+    return false;
   Card card = worstCardValue.card;
   uint64_t amount = cardsInHand.count(card);
   uint64_t jesters = worstCardValue.jesters;
@@ -34,14 +36,25 @@ bool WorstStatCardPlayer::play(
   return true;
 }
 
-CardValue WorstStatCardPlayer::getWorstCardValue(
+bool WorstStatCardPlayer::getCardValueToPlay(
+  CardValue &cardValue,
   std::vector<CardValue> const &cardValues,
   Cards::PlayedCardInfo const &cardStackTop
 ) {
-  if (isFirstInRound(cardStackTop) && cardValues[0].card == jester && cardValues.size() > 1)
-    return cardValues[1];
+  if (isFirstInRound(cardStackTop) && hasOnlyOneNonZeroRoundCloseChance(cardValues)) {
+    cardValue = getRoundCloseZeroChanceCardValue(cardValues);
+    return true;
+  }
 
-  return cardValues[0];
+  if (isFirstInRound(cardStackTop) && cardValues[0].card == jester && cardValues.size() > 1) {
+    cardValue = cardValues[1];
+    return true;
+  }
+
+  // if (cardValues[0].card < 5 && cardValues[0].roundCloseChance < 10.0)
+  //   return false;
+  cardValue = cardValues[0];
+  return true;
 }
 
 CardValue WorstStatCardPlayer::getCardValue(

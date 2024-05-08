@@ -14,7 +14,8 @@ public:
   ) override;
 
 private:
-  CardValue getWorstCardValue(
+  bool getCardValueToPlay(
+    CardValue &cardValue,
     std::vector<CardValue> const &cardValues,
     Cards::PlayedCardInfo const &cardStackTop
   );

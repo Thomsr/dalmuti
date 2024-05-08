@@ -13,11 +13,6 @@ public:
     std::vector<size_t> const &opponentsHandSizes
   ) override;
 
-  void resetPlayer() override {
-    cardsInHand.clear();
-    startingHandValue = 0;
-  }
-
 private:
   CardValue getWorstCardValue(
     std::vector<CardValue> const &cardValues,
@@ -30,8 +25,6 @@ private:
     std::multiset<Card> const &playedCards,
     std::vector<size_t> const &opponentsHandSizes
   ) override;
-
-  double startingHandValue;
 };
 
 #endif

@@ -1,7 +1,7 @@
 #include "test-player.h"
 
 TestPlayer::TestPlayer(uint64_t cardLimit, uint64_t playerNumber)
-  : StatPlayer(cardLimit, playerNumber, WORSTCARD), startingHandValue(0) {}
+  : StatPlayer(cardLimit, playerNumber, TEST) {}
 
 bool TestPlayer::play(
   Cards::PlayedCardInfo &cardStackTop,
@@ -9,16 +9,9 @@ bool TestPlayer::play(
   std::multiset<Card> const &playedCards,
   std::vector<size_t> const &opponentsHandSizes
 ) {
-  if (startingHandValue == 0) {
-    startingHandValue = getHandValue(playedCards, opponentsHandSizes);
-  }
+  (void)passes;
   if (!canPlay(cardStackTop))
     return false;
-
-  double const aggressiveness =
-    ((passes / double(opponentsHandSizes.size())) + (startingHandValue / 10));
-
-  (void)aggressiveness;
 
   std::vector<CardValue> cardValues;
   getCardValues(cardValues, cardStackTop, playedCards, opponentsHandSizes);
@@ -26,7 +19,7 @@ bool TestPlayer::play(
     return false;
 
   std::sort(cardValues.begin(), cardValues.end(), sortCardValue);
-  // printCardValues(cardValues);
+  printCardValues(cardValues);
 
   CardValue worstCardValue = getWorstCardValue(cardValues, cardStackTop);
   Card card = worstCardValue.card;
@@ -60,6 +53,10 @@ CardValue TestPlayer::getCardValue(
   double roundCloseChance = getRoundCloseChance(
     card, cardsInHand.count(card) + jesters, playedCards, opponentsHandSizes
   );
+  double aggressiveness = getAggressiveness(
+    0, opponentsHandSizes, getHandValue(playedCards, opponentsHandSizes)
+  );
+  std::cout << aggressiveness << std::endl;
 
   return (CardValue{
     playableChance * 2 - card * .5,

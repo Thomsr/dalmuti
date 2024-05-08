@@ -62,6 +62,21 @@ protected:
     std::vector<size_t> const &opponentsHandSizes
   ) = 0;
 
+  CardValue
+  getRoundCloseZeroChanceCardValue(std::vector<CardValue> const &cardValues);
+  bool
+  hasOnlyOneNonZeroRoundCloseChance(std::vector<CardValue> const &cardValues);
+
+  double getAggressiveness(
+    uint64_t const &passes,
+    std::vector<size_t> const &opponentsHandSizes,
+    double const &startingHandValue
+  ) {
+    return (
+      (passes / double(opponentsHandSizes.size())) + (startingHandValue / 10)
+    );
+  }
+
   void printCardValues(std::vector<CardValue> cardValues);
 
 private:

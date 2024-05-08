@@ -94,11 +94,34 @@ void StatPlayer::getCardValues(
       if (!isFirstInRound(cardStackTop) && !canPlayCard(card, cardsInHand.count(card) + jesters, cardStackTop))
         continue;
 
-      cardValues.push_back(
-        getCardValue(card, jesters, playedCards, opponentsHandSizes)
-      );
+      CardValue newCardValue =
+        getCardValue(card, jesters, playedCards, opponentsHandSizes);
+      cardValues.push_back(newCardValue);
     }
   }
+}
+
+CardValue StatPlayer::getRoundCloseZeroChanceCardValue(
+  std::vector<CardValue> const &cardValues
+) {
+  for (auto cardValue: cardValues)
+    if (cardValue.roundCloseChance == 0)
+      return cardValue;
+  return cardValues[0];
+}
+
+bool StatPlayer::hasOnlyOneNonZeroRoundCloseChance(
+  std::vector<CardValue> const &cardValues
+) {
+  uint64_t nonZeroCount = 0;
+  for (auto cardValue: cardValues)
+    if (cardValue.roundCloseChance > 0) {
+      nonZeroCount++;
+      if (nonZeroCount > 1)
+        return false;
+    }
+
+  return true;
 }
 
 void StatPlayer::printCardValues(std::vector<CardValue> cardValues) {

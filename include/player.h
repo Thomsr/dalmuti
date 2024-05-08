@@ -14,7 +14,8 @@ enum PlayerType {
   WORSTCARD,
   BESTCARD,
   USER,
-  WORSTSTAT
+  WORSTSTAT,
+  TEST
 };
 
 class Player {
