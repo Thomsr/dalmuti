@@ -31,7 +31,7 @@ double StatPlayer::getPlayableChance(
   uint64_t totalCardsLeft = 80 - playedCards.size() - cardsInHand.size();
 
   for (uint64_t player = 0; player < opponentsInfo.size(); player++) {
-    for (uint64_t currentCard = card + 1; currentCard <= getWorstCard();
+    for (uint64_t currentCard = card + 1; currentCard < cardLimit;
          currentCard++) {
       // If the player has already played the card, we assume that the player
       // does not have the card anymore
