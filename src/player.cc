@@ -2,8 +2,8 @@
 
 const double TOL = 1E-12;
 
-Player::Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType playerType)
-  : jester(cardLimit + 1), playerNumber(playerNumber), playerType(playerType),
+Player::Player(uint64_t cardLimit, uint64_t playerId, PlayerType playerType)
+  : jester(cardLimit + 1), playerId(playerId), playerType(playerType),
     cardLimit(cardLimit) {}
 
 void Player::resetPlayer() {
@@ -49,7 +49,8 @@ void Player::printCardsInHand() {
 
 bool Player::canPlay(Cards::PlayedCardInfo const &cardStackTop) {
   for (Card card = cardStackTop.card - 1; card >= cardStackTop.amount; card--) {
-    if (cardsInHand.count(card) + cardsInHand.count(cardLimit + 1) >= cardStackTop.amount)
+    if (cardsInHand.count(card) + cardsInHand.count(cardLimit + 1) >=
+        cardStackTop.amount)
       return true;
   }
   return false;

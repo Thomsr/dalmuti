@@ -7,6 +7,7 @@ Table::Table(uint64_t cardLimit, bool debug)
 
 void Table::addPlayer(Player *player) {
   players.push_back(player);
+  playedCardsPerPlayer.push_back(std::multiset<Card>());
 }
 
 void Table::printCards() {
@@ -23,14 +24,14 @@ void Table::printPlayerCards(uint64_t player) {
 
 void Table::printAllPlayerCards() {
   for (size_t player = 0; player < players.size(); player++) {
-    std::cout << players[player]->getPlayerNumber() << "\t";
+    std::cout << players[player]->getPlayerId() << "\t";
     players[player]->printCardsInHand();
   }
 }
 
 void Table::printPlayersRanking() {
   for (size_t player = 0; player < players.size(); player++)
-    std::cout << players[player]->getPlayerNumber() << " ";
+    std::cout << players[player]->getPlayerId() << " ";
   std::cout << std::endl;
 }
 
@@ -86,6 +87,8 @@ void Table::reset() {
   players = nextPlayers;
   nextPlayers.clear();
   playedCards.clear();
+  for (std::multiset<Card> &p: playedCardsPerPlayer)
+    p.clear();
   setCardLimit(12);
   distributeCards();
 }
@@ -95,17 +98,17 @@ std::vector<Player *> Table::play() {
   uint64_t passes = 0;
 
   while (!allPlayersDone()) {
-    std::vector<size_t> opponentsHandSizes =
-      getOpponentsHandSizes(currentPlayer);
-
-    if (debug && players[currentPlayer]->getPlayerType() == PlayerType::WORSTSTAT)
+    std::vector<Opponent> opponentsInfo;
+    getOpponentsInfo(currentPlayer, opponentsInfo);
+    if (debug &&
+        players[currentPlayer]->getPlayerType() == PlayerType::WORSTSTAT)
       players[3]->printCardsInHand();
 
     if (players[currentPlayer]->play(
-          cardStackTop, passes, playedCards, opponentsHandSizes
+          cardStackTop, passes, playedCards, opponentsInfo
         )) {
       if (debug) {
-        std::cout << players[currentPlayer]->getPlayerNumber()
+        std::cout << players[currentPlayer]->getPlayerId()
                   << " played: " << int(cardStackTop.card) << " "
                   << int(cardStackTop.amount) << "x "
                   << int(cardStackTop.jesters) << " jesters" << std::endl;
@@ -113,15 +116,25 @@ std::vector<Player *> Table::play() {
 
       passes = 0;
       addCardsToPlayedCards(cardStackTop.card, cardStackTop.amount);
+      addPlayerPlayedCards(
+        cardStackTop.card,
+        cardStackTop.amount,
+        players[currentPlayer]->getPlayerId()
+      );
 
       if (cardStackTop.jesters > 0) {
         addCardsToPlayedCards(cardLimit + 1, cardStackTop.jesters);
+        addPlayerPlayedCards(
+          cardLimit + 1,
+          cardStackTop.jesters,
+          players[currentPlayer]->getPlayerId()
+        );
         cardStackTop.amount += cardStackTop.jesters;
         cardStackTop.jesters = 0;
       }
     } else {
       if (debug)
-        std::cout << players[currentPlayer]->getPlayerNumber() << " passed"
+        std::cout << players[currentPlayer]->getPlayerId() << " passed"
                   << std::endl;
       passes++;
     }
@@ -177,6 +190,29 @@ std::vector<size_t> Table::getOpponentsHandSizes(int player) {
 void Table::addCardsToPlayedCards(Card card, uint64_t amount) {
   for (uint64_t i = 0; i < amount; i++)
     playedCards.insert(card);
+}
+
+Opponent Table::getOpponentInfo(uint64_t player) {
+  Opponent opponent;
+  opponent.id = players[player]->getPlayerId();
+  opponent.handSize = players[player]->getAmountOfCardsInHand();
+  opponent.playedCards = playedCardsPerPlayer[opponent.id - 1];
+  return opponent;
+}
+
+void Table::getOpponentsInfo(int player, std::vector<Opponent> &opponents) {
+  for (int i = player - 1; i >= 0; i--)
+    opponents.push_back(getOpponentInfo(i));
+
+  for (int i = int(players.size()) - 1; i > player; i--)
+    opponents.push_back(getOpponentInfo(i));
+}
+
+void Table::addPlayerPlayedCards(
+  Card card, uint64_t amount, uint64_t playerId
+) {
+  for (uint64_t i = 0; i < amount; i++)
+    playedCardsPerPlayer[playerId - 1].insert(card);
 }
 
 Table::~Table() {

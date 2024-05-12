@@ -34,11 +34,16 @@ private:
   bool allPlayersDone();
   std::vector<size_t> getOpponentsHandSizes(int player);
   void addCardsToPlayedCards(Card card, uint64_t amount);
+  void addPlayerPlayedCards(Card card, uint64_t amount, uint64_t player);
+
+  Opponent getOpponentInfo(uint64_t player);
+  void getOpponentsInfo(int player, std::vector<Opponent> &opponents);
 
   std::vector<Player *> players;
   std::vector<Player *> nextPlayers;
   std::multiset<Card> cards;
   std::multiset<Card> playedCards;
+  std::vector<std::multiset<Card>> playedCardsPerPlayer;
   Cards::PlayedCardInfo cardStackTop;
   uint64_t cardLimit;
 

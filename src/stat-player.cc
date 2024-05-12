@@ -9,13 +9,13 @@ StatPlayer::StatPlayer(
 
 double StatPlayer::getHandValue(
   std::multiset<Card> const &playedCards,
-  std::vector<size_t> const &opponentsHandSizes
+  std::vector<Opponent> const &opponentsInfo
 ) {
   double handValue = 0.0;
   for (int i = 1; i <= 12; i++)
     if (cardsInHand.count(i) > 0)
       handValue += getRoundCloseChance(
-        i, cardsInHand.count(i), playedCards, opponentsHandSizes
+        i, cardsInHand.count(i), playedCards, opponentsInfo
       );
 
   return handValue;
@@ -25,14 +25,19 @@ double StatPlayer::getPlayableChance(
   Card const &card,
   uint64_t const &amount,
   std::multiset<Card> const &playedCards,
-  std::vector<size_t> const &opponentsHandSizes
+  std::vector<Opponent> const &opponentsInfo
 ) {
   double playChance = 0;
   uint64_t totalCardsLeft = 80 - playedCards.size() - cardsInHand.size();
 
-  for (uint64_t player = 0; player < opponentsHandSizes.size(); player++) {
-    for (uint64_t currentCard = card + 1; currentCard < cardLimit;
+  for (uint64_t player = 0; player < opponentsInfo.size(); player++) {
+    for (uint64_t currentCard = card + 1; currentCard <= getWorstCard();
          currentCard++) {
+      // If the player has already played the card, we assume that the player
+      // does not have the card anymore
+      if (opponentsInfo[player].playedCards.count(currentCard) > 0)
+        continue;
+
       uint64_t cardsLeft = getCardsLeft(currentCard, playedCards);
 
       if (cardsLeft < amount)
@@ -40,7 +45,7 @@ double StatPlayer::getPlayableChance(
 
       playChance +=
         hypergeometricProbability(
-          opponentsHandSizes[player], amount, totalCardsLeft, cardsLeft
+          opponentsInfo[player].handSize, amount, totalCardsLeft, cardsLeft
         ) /
         (player + 1);
     }
@@ -52,20 +57,22 @@ double StatPlayer::getRoundCloseChance(
   Card const &card,
   uint64_t const &amount,
   std::multiset<Card> const &playedCards,
-  std::vector<size_t> const &opponentsHandSizes
+  std::vector<Opponent> const &opponentsInfo
 ) {
   double roundCloseChance = 0;
   uint64_t totalCardsLeft = 80 - playedCards.size() - cardsInHand.size();
 
-  for (uint64_t player = 0; player < opponentsHandSizes.size(); player++) {
+  for (uint64_t player = 0; player < opponentsInfo.size(); player++) {
     for (uint64_t currentCard = 1; currentCard < card; currentCard++) {
+      if (opponentsInfo[player].playedCards.count(currentCard) > 0)
+        continue;
       uint64_t cardsLeft = getCardsLeft(currentCard, playedCards);
 
       if (cardsLeft < amount)
         continue;
 
       roundCloseChance += hypergeometricProbability(
-        opponentsHandSizes[player], amount, totalCardsLeft, cardsLeft
+        opponentsInfo[player].handSize, amount, totalCardsLeft, cardsLeft
       );
     }
   }
@@ -76,7 +83,7 @@ void StatPlayer::getCardValues(
   std::vector<CardValue> &cardValues,
   Cards::PlayedCardInfo const &cardStackTop,
   std::multiset<Card> const &playedCards,
-  std::vector<size_t> const &opponentsHandSizes
+  std::vector<Opponent> const &opponentsInfo
 ) {
   // If we have played more than half our cards, we should consider playing the
   // jesters standalone
@@ -91,11 +98,12 @@ void StatPlayer::getCardValues(
     // 0 if we are calculating the value of jesters
     uint64_t amountOfJesters = card == jester ? 0 : cardsInHand.count(jester);
     for (uint64_t jesters = 0; jesters <= amountOfJesters; jesters++) {
-      if (!isFirstInRound(cardStackTop) && !canPlayCard(card, cardsInHand.count(card) + jesters, cardStackTop))
+      if (!isFirstInRound(cardStackTop) &&
+          !canPlayCard(card, cardsInHand.count(card) + jesters, cardStackTop))
         continue;
 
       CardValue newCardValue =
-        getCardValue(card, jesters, playedCards, opponentsHandSizes);
+        getCardValue(card, jesters, playedCards, opponentsInfo);
       cardValues.push_back(newCardValue);
     }
   }

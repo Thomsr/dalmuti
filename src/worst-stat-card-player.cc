@@ -9,7 +9,7 @@ bool WorstStatCardPlayer::play(
   Cards::PlayedCardInfo &cardStackTop,
   uint64_t const &passes,
   std::multiset<Card> const &playedCards,
-  std::vector<size_t> const &opponentsHandSizes
+  std::vector<Opponent> const &opponentsInfo
 ) {
   (void)passes;
 
@@ -17,7 +17,7 @@ bool WorstStatCardPlayer::play(
     return false;
 
   std::vector<CardValue> cardValues;
-  getCardValues(cardValues, cardStackTop, playedCards, opponentsHandSizes);
+  getCardValues(cardValues, cardStackTop, playedCards, opponentsInfo);
   if (cardValues.size() == 0)
     return false;
 
@@ -41,12 +41,14 @@ bool WorstStatCardPlayer::getCardValueToPlay(
   std::vector<CardValue> const &cardValues,
   Cards::PlayedCardInfo const &cardStackTop
 ) {
-  if (isFirstInRound(cardStackTop) && hasOnlyOneNonZeroRoundCloseChance(cardValues)) {
+  if (isFirstInRound(cardStackTop) &&
+      hasOnlyOneNonZeroRoundCloseChance(cardValues)) {
     cardValue = getRoundCloseZeroChanceCardValue(cardValues);
     return true;
   }
 
-  if (isFirstInRound(cardStackTop) && cardValues[0].card == jester && cardValues.size() > 1) {
+  if (isFirstInRound(cardStackTop) && cardValues[0].card == jester &&
+      cardValues.size() > 1) {
     cardValue = cardValues[1];
     return true;
   }
@@ -55,19 +57,20 @@ bool WorstStatCardPlayer::getCardValueToPlay(
   //   return false;
   cardValue = cardValues[0];
   return true;
+  // }
 }
 
 CardValue WorstStatCardPlayer::getCardValue(
   Card const &card,
   uint64_t const &jesters,
   std::multiset<Card> const &playedCards,
-  std::vector<size_t> const &opponentsHandSizes
+  std::vector<Opponent> const &opponentsInfo
 ) {
   double playableChance = getPlayableChance(
-    card, cardsInHand.count(card) + jesters, playedCards, opponentsHandSizes
+    card, cardsInHand.count(card) + jesters, playedCards, opponentsInfo
   );
   double roundCloseChance = getRoundCloseChance(
-    card, cardsInHand.count(card) + jesters, playedCards, opponentsHandSizes
+    card, cardsInHand.count(card) + jesters, playedCards, opponentsInfo
   );
 
   return (CardValue{

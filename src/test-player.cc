@@ -7,21 +7,24 @@ bool TestPlayer::play(
   Cards::PlayedCardInfo &cardStackTop,
   uint64_t const &passes,
   std::multiset<Card> const &playedCards,
-  std::vector<size_t> const &opponentsHandSizes
+  std::vector<Opponent> const &opponentsInfo
 ) {
   (void)passes;
+
   if (!canPlay(cardStackTop))
     return false;
 
   std::vector<CardValue> cardValues;
-  getCardValues(cardValues, cardStackTop, playedCards, opponentsHandSizes);
+  getCardValues(cardValues, cardStackTop, playedCards, opponentsInfo);
   if (cardValues.size() == 0)
     return false;
 
   std::sort(cardValues.begin(), cardValues.end(), sortCardValue);
-  printCardValues(cardValues);
+  // printCardValues(cardValues);
 
-  CardValue worstCardValue = getWorstCardValue(cardValues, cardStackTop);
+  CardValue worstCardValue;
+  if (!getCardValueToPlay(worstCardValue, cardValues, cardStackTop))
+    return false;
   Card card = worstCardValue.card;
   uint64_t amount = cardsInHand.count(card);
   uint64_t jesters = worstCardValue.jesters;
@@ -31,32 +34,50 @@ bool TestPlayer::play(
   return true;
 }
 
-CardValue TestPlayer::getWorstCardValue(
+bool TestPlayer::getCardValueToPlay(
+  CardValue &cardValue,
   std::vector<CardValue> const &cardValues,
   Cards::PlayedCardInfo const &cardStackTop
 ) {
-  if (isFirstInRound(cardStackTop) && cardValues[0].card == jester && cardValues.size() > 1)
-    return cardValues[1];
+  if (isFirstInRound(cardStackTop) &&
+      hasOnlyOneNonZeroRoundCloseChance(cardValues)) {
+    cardValue = getRoundCloseZeroChanceCardValue(cardValues);
+    return true;
+  }
 
-  return cardValues[0];
+  for (auto cardValueCurrent: cardValues) {
+    if (!canPlayCard(
+          cardValueCurrent.card,
+          cardsInHand.count(cardValueCurrent.card),
+          cardStackTop
+        ))
+      continue;
+
+    if (isFirstInRound(cardStackTop)) {
+      cardValue = cardValueCurrent;
+      return true;
+    }
+
+    // if (cardValues[0].card < 5 && cardValues[0].roundCloseChance < 10.0)
+    //   return false;
+    cardValue = cardValueCurrent;
+    return true;
+  }
+  return false;
 }
 
 CardValue TestPlayer::getCardValue(
   Card const &card,
   uint64_t const &jesters,
   std::multiset<Card> const &playedCards,
-  std::vector<size_t> const &opponentsHandSizes
+  std::vector<Opponent> const &opponentsInfo
 ) {
   double playableChance = getPlayableChance(
-    card, cardsInHand.count(card) + jesters, playedCards, opponentsHandSizes
+    card, cardsInHand.count(card) + jesters, playedCards, opponentsInfo
   );
   double roundCloseChance = getRoundCloseChance(
-    card, cardsInHand.count(card) + jesters, playedCards, opponentsHandSizes
+    card, cardsInHand.count(card) + jesters, playedCards, opponentsInfo
   );
-  double aggressiveness = getAggressiveness(
-    0, opponentsHandSizes, getHandValue(playedCards, opponentsHandSizes)
-  );
-  std::cout << aggressiveness << std::endl;
 
   return (CardValue{
     playableChance * 2 - card * .5,
