@@ -49,7 +49,7 @@ void getStatistics(int numberOfRounds, Table &t, int nrPlayers) {
   for (const auto &round: playerRounds) {
     int position = 1;
     for (const auto &player: round) {
-      int playerNumber = player->getPlayerNumber();
+      int playerNumber = player->getPlayerId();
       playerPositions[playerNumber][position]++;
       position++;
     }

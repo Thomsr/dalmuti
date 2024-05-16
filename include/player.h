@@ -18,15 +18,21 @@ enum PlayerType {
   TEST
 };
 
+struct Opponent {
+  uint64_t id;
+  size_t handSize;
+  std::multiset<Card> playedCards;
+};
+
 class Player {
 public:
-  Player(uint64_t cardLimit, uint64_t playerNumber, PlayerType playerType);
+  Player(uint64_t cardLimit, uint64_t playerId, PlayerType playerType);
 
   virtual bool play(
     Cards::PlayedCardInfo &cardStackTop,
     uint64_t const &passes,
     std::multiset<Card> const &playedCards,
-    std::vector<size_t> const &opponentsHandSizes
+    std::vector<Opponent> const &opponentsInfo
   ) = 0;
 
   bool canPlay(Cards::PlayedCardInfo const &cardStackTop);
@@ -40,7 +46,7 @@ public:
   void printCardsInHand();
 
   inline size_t getAmountOfCardsInHand() { return cardsInHand.size(); }
-  inline uint64_t getPlayerNumber() const { return playerNumber; }
+  inline uint64_t getPlayerId() const { return playerId; }
   inline PlayerType getPlayerType() const { return playerType; }
   inline Card getBestCard() { return *(cardsInHand.begin()); }
   inline Card getWorstCard() { return *(cardsInHand.rbegin()); }
@@ -59,7 +65,7 @@ protected:
   }
 
   Card const jester;
-  uint64_t playerNumber;
+  uint64_t playerId;
   PlayerType playerType;
   std::multiset<Card> cardsInHand;
   const uint64_t cardLimit;

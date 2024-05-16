@@ -17,7 +17,7 @@ public:
 
   double getHandValue(
     std::multiset<Card> const &playedCards,
-    std::vector<size_t> const &opponentsHandSizes
+    std::vector<Opponent> const &opponentsInfo
   );
 
 protected:
@@ -28,7 +28,7 @@ protected:
     Card const &card,
     uint64_t const &amount,
     std::multiset<Card> const &playedCards,
-    std::vector<size_t> const &opponentsHandSizes
+    std::vector<Opponent> const &opponentsInfo
   );
 
   /**
@@ -41,7 +41,7 @@ protected:
     Card const &card,
     uint64_t const &amount,
     std::multiset<Card> const &playedCards,
-    std::vector<size_t> const &opponentsHandSizes
+    std::vector<Opponent> const &opponentsInfo
   );
 
   static bool sortCardValue(const CardValue &a, const CardValue &b) {
@@ -52,14 +52,14 @@ protected:
     std::vector<CardValue> &cardValues,
     Cards::PlayedCardInfo const &cardStackTop,
     std::multiset<Card> const &playedCards,
-    std::vector<size_t> const &opponentsHandSizes
+    std::vector<Opponent> const &opponentsInfo
   );
 
   virtual CardValue getCardValue(
     Card const &card,
     uint64_t const &jesters,
     std::multiset<Card> const &playedCards,
-    std::vector<size_t> const &opponentsHandSizes
+    std::vector<Opponent> const &opponentsInfo
   ) = 0;
 
   CardValue

@@ -10,7 +10,7 @@ public:
     Cards::PlayedCardInfo &cardStackTop,
     uint64_t const &passes,
     std::multiset<Card> const &playedCards,
-    std::vector<size_t> const &opponentsHandSizes
+    std::vector<Opponent> const &opponentsInfo
   ) override;
 };
 

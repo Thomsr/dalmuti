@@ -7,12 +7,12 @@ bool WorstCardPlayer::play(
   Cards::PlayedCardInfo &cardStackTop,
   uint64_t const &passes,
   std::multiset<Card> const &playedCards,
-  std::vector<size_t> const &opponentsHandSizes
+  std::vector<Opponent> const &opponentsInfo
 ) {
 
   (void)passes;
   (void)playedCards;
-  (void)opponentsHandSizes;
+  (void)opponentsInfo;
 
   if (cardsInHand.size() == 0)
     return false;
@@ -26,7 +26,7 @@ bool WorstCardPlayer::play(
   }
 
   for (Card card = cardStackTop.card - 1; card >= 1; card--) {
-    if (cardsInHand.count(card) >= cardStackTop.amount + cardStackTop.jesters) {
+    if (cardsInHand.count(card) == cardStackTop.amount + cardStackTop.jesters) {
       cardStackTop = {card, cardStackTop.amount, 0};
       removeCardsFromHand(card, cardStackTop.amount);
       return true;
@@ -35,7 +35,7 @@ bool WorstCardPlayer::play(
       // jesters
       if (cardsInHand.count(cardLimit + 1) == 1 &&
           cardsInHand.count(card) + 1 ==
-              cardStackTop.amount + cardStackTop.jesters) {
+            cardStackTop.amount + cardStackTop.jesters) {
         removeCardsFromHand(card, cardStackTop.amount - 1);
         removeCardsFromHand(cardLimit + 1, 1);
         cardStackTop = {card, cardStackTop.amount - 1, 1};
@@ -43,7 +43,7 @@ bool WorstCardPlayer::play(
       }
       if (cardsInHand.count(cardLimit + 1) == 2 &&
           cardsInHand.count(card) + 2 ==
-              cardStackTop.amount + cardStackTop.jesters) {
+            cardStackTop.amount + cardStackTop.jesters) {
         removeCardsFromHand(card, cardStackTop.amount - 2);
         removeCardsFromHand(cardLimit + 1, 2);
         cardStackTop = {card, cardStackTop.amount - 2, 2};
