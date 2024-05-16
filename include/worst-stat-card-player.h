@@ -14,6 +14,10 @@ public:
   ) override;
 
 private:
+  /**
+   * @param cardValue the card value to play.
+   * @returns True if a card was found to play, false otherwise.
+   */
   bool getCardValueToPlay(
     CardValue &cardValue,
     std::vector<CardValue> const &cardValues,
@@ -25,8 +29,10 @@ private:
     uint64_t const &jesters,
     std::multiset<Card> const &playedCards,
     std::vector<Opponent> const &opponentsInfo
-
   ) override;
+
+  bool
+  hasSetCloser(uint64_t &setSize, std::vector<CardValue> const &cardValues);
 };
 
 #endif
